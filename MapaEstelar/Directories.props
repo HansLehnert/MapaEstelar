@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <GLEW_INCLUDE_DIR>D:\Hans\Source\glew-2.0.0\include</GLEW_INCLUDE_DIR>
+    <GLEW_LIB_DIR>D:\Hans\Source\glew-2.0.0\lib</GLEW_LIB_DIR>
+    <GLEW_BIN_DIR>D:\Hans\Source\glew-2.0.0\bin</GLEW_BIN_DIR>
+    <OSVR_INCLUDE_DIR>C:\Program Files (x86)\OSVR\SDK\x86\include</OSVR_INCLUDE_DIR>
+    <OSVR_LIB_DIR>C:\Program Files (x86)\OSVR\SDK\x86\lib</OSVR_LIB_DIR>
+    <OSVR_BIN_DIR>C:\Program Files (x86)\OSVR\SDK\x86\bin</OSVR_BIN_DIR>
+    <SDL_INCLUDE_DIR>D:\Hans\Source\SDL2-2.0.4\include</SDL_INCLUDE_DIR>
+    <SDL_LIB_DIR>D:\Hans\Source\SDL2-2.0.4\lib</SDL_LIB_DIR>
+    <BOOST_INCLUDE_DIR>D:\Hans\Source\boost_1_62_0</BOOST_INCLUDE_DIR>
+    <GLM_INCLUDE_DIR>D:\Hans\Source\glm</GLM_INCLUDE_DIR>
+    <BIN_PATH>$(GLEW_BIN_DIR)\Release\Win32;$(OSVR_BIN_DIR);$(SDL_LIB_DIR)\x86</BIN_PATH>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="GLEW_INCLUDE_DIR">
+      <Value>$(GLEW_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLEW_LIB_DIR">
+      <Value>$(GLEW_LIB_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="GLEW_BIN_DIR">
+      <Value>$(GLEW_BIN_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="OSVR_INCLUDE_DIR">
+      <Value>$(OSVR_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OSVR_LIB_DIR">
+      <Value>$(OSVR_LIB_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="OSVR_BIN_DIR">
+      <Value>$(OSVR_BIN_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL_INCLUDE_DIR">
+      <Value>$(SDL_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL_LIB_DIR">
+      <Value>$(SDL_LIB_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="BOOST_INCLUDE_DIR">
+      <Value>$(BOOST_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLM_INCLUDE_DIR">
+      <Value>$(GLM_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BIN_PATH">
+      <Value>$(BIN_PATH)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

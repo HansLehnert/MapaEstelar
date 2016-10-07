@@ -66,6 +66,7 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+Directories.props
 
 # Chutzpah Test files
 _Chutzpah*

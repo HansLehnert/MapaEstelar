@@ -32,7 +32,6 @@ public:
 
 private:
 	GLuint data_buffer;
-	GLuint program;
 
 	int n_data;
 };

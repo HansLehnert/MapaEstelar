@@ -8,6 +8,7 @@ class GraphicComponent : public Component {
 public:
 	GraphicComponent(RenderSystem* sys) : Component(sys) { };
 	virtual int update() = 0;
+	virtual int render() = 0;
 	
 protected:
 	GLProgram* program;

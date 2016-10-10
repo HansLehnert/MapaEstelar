@@ -4,8 +4,10 @@
 #include <osvr\ClientKit\Display.h>
 #include <SDL_video.h>
 #include <glm\glm.hpp>
+#include <GL\glew.h>
 
 #include "../core/System.h"
+#include "GLProgram.h"
 
 class RenderSystem : public System {
 public:
@@ -22,8 +24,16 @@ public:
 	glm::mat4 camera_matrix;
 	glm::mat4 world_matrix;
 private:
+	//VAO
+	GLuint vao_common;
+	GLuint vao_eye;
+
 	//OSVR
 	osvr::clientkit::ClientContext* osvr_context;
+	osvr::clientkit::Surface* surface[2];
+	osvr::clientkit::RelativeViewport surface_viewport[2];
+
+	SDL_GLContext render_context;
 
 	//Window info
 	struct {
@@ -44,5 +54,13 @@ private:
 		SDL_Window* handle;
 		SDL_GLContext context;
 	} display;
+
+	//Framebuffers
+	GLuint frame_buffer;
+
+	GLuint frame_texture[2];
+	GLuint plane_buffer;
+	GLProgram* frame_program;
+	GLuint tex_uniform;
 };
 

@@ -11,17 +11,23 @@ int main(int argc, char** argv) {
 	std::vector<Star> star_data;
 	for (int i = 0; i < 1000; i++) {
 		Star star;
-		star.position.x = (rand() / (float)RAND_MAX) * 2 - 1;
-		star.position.y = (rand() / (float)RAND_MAX) * 2 - 1;
-		star.position.z = (rand() / (float)RAND_MAX) * 2 - 1;
+		float a = 3.14 * 2 * (rand() / (float)RAND_MAX);
+		float b = 3.14 * (rand() / (float)RAND_MAX);
+		float r = 1.6 + 0.4 * (rand() / (float)RAND_MAX);
+		star.position.x = cos(a) * sin(b) * r;
+		star.position.y = sin(a) * sin(b) * r;
+		star.position.z = cos(b);
 		star.position.w = 1;
-		star.color = { 1, 1, 1 };
-		star.size = 1;
+		star.color.r = (rand() / (float)RAND_MAX) * 0.6 + 0.4;
+		star.color.g = (rand() / (float)RAND_MAX) * 0.6 + 0.4;
+		star.color.b = (rand() / (float)RAND_MAX) * 0.6 + 0.4;
+		star.color.a = 1;
+		star.size = 1 + (rand() / (float)RAND_MAX) * 4;
 		star_data.push_back(star);
 	}
 
 	StarSet main_set(&render_sys);
-	main_set.load(star_data);
+	main_set.load(&star_data);
 
 	while (render_sys.update()) {
 		continue;

@@ -38,9 +38,19 @@ GLProgram* GLProgram::getProgram(std::string name) {
 			glDeleteShader(fragment_shader);
 		}
 
-		new_program.model_loc = glGetUniformLocation(new_program.id, "model_matrix");
-		new_program.world_loc = glGetUniformLocation(new_program.id, "world_matrix");
-		new_program.camera_loc = glGetUniformLocation(new_program.id, "camera_matrix");
+		//Get uniform locations
+		GLint uniform_count;
+		glGetProgramiv(new_program.id, GL_ACTIVE_UNIFORMS, &uniform_count);
+		for (int i = 0; i < uniform_count; i++) {
+			Uniform new_uniform;
+			GLsizei length;
+			GLchar uniform_name[16];
+	
+			glGetActiveUniform(new_program.id, i, 16, &length, &(new_uniform.size), &(new_uniform.type), uniform_name);
+			new_uniform.loc = glGetUniformLocation(new_program.id, uniform_name);
+
+			new_program.uniform[uniform_name] = new_uniform;
+		}
 
 		program_cache[name] = new_program;
 	}

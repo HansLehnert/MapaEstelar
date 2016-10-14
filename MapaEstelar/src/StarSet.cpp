@@ -26,8 +26,8 @@ int StarSet::render() {
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, color));
 	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, size));
 
-	glUniformMatrix4fv(program->world_loc, 1, GL_FALSE, &(((RenderSystem*)system)->world_matrix[0][0]));
-	glUniformMatrix4fv(program->camera_loc, 1, GL_FALSE, &(((RenderSystem*)system)->camera_matrix[0][0]));
+	glUniformMatrix4fv(program->uniform["world_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->world_matrix[0][0]));
+	glUniformMatrix4fv(program->uniform["camera_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->camera_matrix[0][0]));
 
 	glDrawArrays(GL_POINTS, 0, n_data);
 

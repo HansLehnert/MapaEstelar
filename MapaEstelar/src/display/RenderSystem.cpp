@@ -106,8 +106,8 @@ int RenderSystem::init() {
 
 	//Crear contexto para ventana
 	if (window.enabled) {
-		window.width = 640;//Mover a configuracion por linea de comando
-		window.height = 480;
+		window.width = 800;//Mover a configuracion por linea de comando
+		window.height = 450;
 
 		window.handle = SDL_CreateWindow(
 			"Mapa Estelar (Ventana)",
@@ -173,6 +173,22 @@ int RenderSystem::init() {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, surface_viewport[i].width, surface_viewport[i].height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+			//Mapa de distorcion
+			glm::vec2 center;
+			if (i == 0)
+				center = glm::vec2(0.471, 0.5);
+			else
+				center = glm::vec2(0.529, 0.5);
+
+
+			distortion_map[i] = generateDistortionMap(
+				surface_viewport[i].width,
+				surface_viewport[i].height,
+				center,
+				{0.f, 1.f, -1.74f, 5.15f, -1.27f, -2.23f});
 		}
 		//Falta agregar depth buffers
 	}
@@ -191,7 +207,6 @@ int RenderSystem::init() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
 	frame_program = GLProgram::getProgram("frame");
-	tex_uniform = glGetUniformLocation(frame_program->id, "frame_texture");
 
 	return 1;
 }
@@ -234,10 +249,10 @@ int RenderSystem::update() {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE0);
 		glUseProgram(frame_program->id);
 
-		glUniform1i(tex_uniform, 0);
+		glUniform1i(frame_program->uniform["frame"].loc, 0);
+		glUniform1i(frame_program->uniform["distortion_map"].loc, 1);
 		for (int i = 0; i < 2; i++) {
 			glViewport(
 				surface_viewport[i].left,
@@ -246,54 +261,17 @@ int RenderSystem::update() {
 				surface_viewport[i].height
 			);
 
+			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, frame_texture[i]);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		}
 
 		SDL_GL_SwapWindow(display.handle);
 	}
-	/*if (display.enabled) {
-		SDL_GL_MakeCurrent(display.handle, render_context);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		int n_viewer;
-		int n_eye;
-		int n_surface;
-
-		n_viewer = display.config->getNumViewers();
-		for (int i = 0; i < n_viewer; i++) {
-			osvr::clientkit::Viewer viewer = display.config->getViewer(i);
-			n_eye = viewer.getNumEyes();
-
-			for (int j = 0; j < n_eye; j++) {
-				osvr::clientkit::Eye eye = viewer.getEye(j);
-				n_surface = eye.getNumSurfaces();
-
-				float view_mat[OSVR_MATRIX_SIZE];
-				eye.getViewMatrix(OSVR_MATRIX_COLMAJOR, view_mat);
-
-				for (int k = 0; k < n_surface; k++) {
-					osvr::clientkit::Surface surface = eye.getSurface(k);
-					osvr::clientkit::RelativeViewport viewport = surface.getRelativeViewport();
-
-					glViewport(
-						viewport.left,
-						viewport.bottom,
-						viewport.width,
-						viewport.height);
-
-					float proy_mat[OSVR_MATRIX_SIZE];
-					surface.getProjectionMatrix(0.1, 2, OSVR_MATRIX_COLMAJOR, proy_mat);
-
-					camera_matrix = glm::make_mat4(proy_mat) * glm::make_mat4(view_mat);
-
-					renderAll();
-				}
-			}
-		}
-
-		SDL_GL_SwapWindow(display.handle);
-	}*/
 
 	//Dibujar en pantalla
 	if (window.enabled) {
@@ -304,9 +282,36 @@ int RenderSystem::update() {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glViewport(0, 0, window.width, window.height);
+		if (display.enabled) { //Si el display está activado dibujar imágenes de ojos
+			glBindVertexArray(vao_eye);
 
-		renderAll();
+			glUseProgram(frame_program->id);
+
+			glUniform1i(frame_program->uniform["frame"].loc, 0);
+			glUniform1i(frame_program->uniform["distortion_map"].loc, 1);
+			for (int i = 0; i < 2; i++) {
+				glViewport(
+					surface_viewport[i].left * window.width / display.bounds.w,
+					surface_viewport[i].bottom * window.height / display.bounds.h,
+					surface_viewport[i].width * window.width / display.bounds.w,
+					surface_viewport[i].height * window.height / display.bounds.h
+				);
+
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, frame_texture[i]);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+
+				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			}
+		}
+		else { //Dibujar escena en otro caso
+			glViewport(0, 0, window.width, window.height);
+
+			renderAll();
+		}
+		
 		SDL_GL_SwapWindow(window.handle);
 	}
 
@@ -337,4 +342,34 @@ glm::mat4 RenderSystem::getCameraMatrix() {
 
 glm::mat4 RenderSystem::getWorldMatrix() {
 	return world_matrix;
+}
+
+GLuint RenderSystem::generateDistortionMap(int width, int height, glm::vec2 center, std::vector<float> k) {
+	glm::vec3* texture_data = new glm::vec3[width * height];
+
+	for (int i = 0; i < width; i++) {
+		float x = (float)i / (width - 1);
+		for (int j = 0; j < height; j++) {
+			float y = (float)j / (height - 1);
+
+			glm::vec2 offset = glm::vec2(x, y) - center;
+			float r = glm::length(offset);
+			float d = 0;
+			for (int m = k.size() - 1; m >= 0; m--) {
+				d *= r;
+				d += k[m];
+			}
+			texture_data[i + width * j].r = center.x + d * offset.x / r;
+			texture_data[i + width * j].g = center.y + d * offset.y / r;
+		}
+	}
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, texture_data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	return texture;
 }

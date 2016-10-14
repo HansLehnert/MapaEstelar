@@ -8,13 +8,19 @@
 class GLProgram {
 public:
 	GLuint id;
-	GLuint world_loc;
-	GLuint camera_loc;
-	GLuint model_loc;
+
+	struct Uniform {
+		GLenum type;
+		GLuint loc;
+		GLint size;
+	};
+	std::map<std::string, Uniform> uniform;
 
 	static GLProgram* getProgram(std::string);
 private:
 	static std::map<std::string, GLProgram> program_cache;
 	static GLuint loadShader(std::string, GLuint);
+
+	
 };
 

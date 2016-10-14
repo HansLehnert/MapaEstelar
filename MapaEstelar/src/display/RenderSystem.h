@@ -59,8 +59,10 @@ private:
 	GLuint frame_buffer;
 
 	GLuint frame_texture[2];
+	GLuint distortion_map[2];
 	GLuint plane_buffer;
 	GLProgram* frame_program;
-	GLuint tex_uniform;
+
+	GLuint generateDistortionMap(int, int, glm::vec2, std::vector<float>);
 };
 

@@ -178,17 +178,17 @@ int RenderSystem::init() {
 
 			//Mapa de distorcion
 			glm::vec2 center;
-			if (i == 0)
-				center = glm::vec2(0.471, 0.5);
-			else
+			std::vector<float> k;
+			if (i == 0) {
+				center = glm::vec2(0.471, 0.5); //Hardcoded
+				k = { 0.f, 1.f, -1.74f, 5.15f, -1.27f, -2.23f };
+			}
+			else {
 				center = glm::vec2(0.529, 0.5);
+				k = { 0.f, 1.f, -1.74f, 5.15f, -1.27f, -2.23f };
+			}
 
-
-			distortion_map[i] = generateDistortionMap(
-				surface_viewport[i].width,
-				surface_viewport[i].height,
-				center,
-				{0.f, 1.f, -1.74f, 5.15f, -1.27f, -2.23f});
+			distortion_mesh[i] = generateDistortionMesh(32, 32, center, k);
 		}
 		//Falta agregar depth buffers
 	}
@@ -199,14 +199,10 @@ int RenderSystem::init() {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	glGenBuffers(1, &plane_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, plane_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(PLANE_MESH), &(PLANE_MESH[0]), GL_STATIC_DRAW);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-
-	frame_program = GLProgram::getProgram("frame");
+	distortion_program = GLProgram::getProgram("distortion");
 
 	return 1;
 }
@@ -249,10 +245,10 @@ int RenderSystem::update() {
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(frame_program->id);
+		glUseProgram(distortion_program->id);
 
-		glUniform1i(frame_program->uniform["frame"].loc, 0);
-		glUniform1i(frame_program->uniform["distortion_map"].loc, 1);
+		glUniform1i(distortion_program->uniform["frame"].loc, 0);
+		//glUniform1i(distortion_program->uniform["distortion_map"].loc, 1);
 		for (int i = 0; i < 2; i++) {
 			glViewport(
 				surface_viewport[i].left,
@@ -264,10 +260,15 @@ int RenderSystem::update() {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, frame_texture[i]);
 
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, distortion_mesh[i].vertex_buffer);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, distortion_mesh[i].index_buffer);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			//glActiveTexture(GL_TEXTURE1);
+			//glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+
+			glDrawElements(GL_TRIANGLES, distortion_mesh[i].index_length, GL_UNSIGNED_INT, 0);
 		}
 
 		SDL_GL_SwapWindow(display.handle);
@@ -285,10 +286,10 @@ int RenderSystem::update() {
 		if (display.enabled) { //Si el display está activado dibujar imágenes de ojos
 			glBindVertexArray(vao_eye);
 
-			glUseProgram(frame_program->id);
+			glUseProgram(distortion_program->id);
 
-			glUniform1i(frame_program->uniform["frame"].loc, 0);
-			glUniform1i(frame_program->uniform["distortion_map"].loc, 1);
+			glUniform1i(distortion_program->uniform["frame"].loc, 0);
+			//glUniform1i(distortion_program->uniform["distortion_map"].loc, 1);
 			for (int i = 0; i < 2; i++) {
 				glViewport(
 					surface_viewport[i].left * window.width / display.bounds.w,
@@ -300,10 +301,16 @@ int RenderSystem::update() {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, frame_texture[i]);
 
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+				glBindBuffer(GL_ARRAY_BUFFER, distortion_mesh[i].vertex_buffer);
+				glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, distortion_mesh[i].index_buffer);
 
-				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+				//glActiveTexture(GL_TEXTURE1);
+				//glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
+
+				glDrawElements(GL_TRIANGLES, distortion_mesh[i].index_length, GL_UNSIGNED_INT, 0);
+				//glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 			}
 		}
 		else { //Dibujar escena en otro caso
@@ -372,4 +379,54 @@ GLuint RenderSystem::generateDistortionMap(int width, int height, glm::vec2 cent
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	return texture;
+}
+
+GLMesh RenderSystem::generateDistortionMesh(int width, int height, glm::vec2 center, std::vector<float> k) {
+	GLMesh mesh;
+
+	mesh.vertex_length = width * height;
+	mesh.index_length = (width - 1) * (height - 1) * 6;
+
+	glm::vec4* vertex_data = new glm::vec4[mesh.vertex_length];
+	unsigned int* index_data = new unsigned int[mesh.index_length];
+
+	for (int i = 0; i < width; i++) {
+		float x = (float)i / (width - 1);
+		for (int j = 0; j < height; j++) {
+			float y = (float)j / (height - 1);
+
+			glm::vec2 offset = glm::vec2(x, y) - center;
+			float r = glm::length(offset);
+			float d = 0;
+			for (int m = k.size() - 1; m >= 0; m--) {
+				d *= r;
+				d += k[m];
+			}
+			vertex_data[i + width * j].x = 2 * x - 1;
+			vertex_data[i + width * j].y = 2 * y - 1;
+			vertex_data[i + width * j].z = center.x + d * offset.x / r;
+			vertex_data[i + width * j].w = center.y + d * offset.y / r;
+		}
+	}
+
+	for (int i = 0; i < width - 1; i++) {
+		for (int j = 0; j < height - 1; j++) {
+			unsigned int* base = index_data + (i + j * (width - 1)) * 6;
+			base[0] = width * j + i;
+			base[1] = width * (j + 1) + i;
+			base[2] = width * j + i + 1;
+			base[3] = width * j + i + 1;
+			base[4] = width * (j + 1) + i;
+			base[5] = width * (j + 1) + i + 1;
+		}
+	}
+
+	glGenBuffers(1, &mesh.vertex_buffer);
+	glGenBuffers(1, &mesh.index_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vertex_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.vertex_length * sizeof(glm::vec4), vertex_data, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.index_length * sizeof(unsigned int), index_data, GL_STATIC_DRAW);
+
+	return mesh;
 }

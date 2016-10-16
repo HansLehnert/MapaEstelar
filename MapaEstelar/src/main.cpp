@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 	render_sys.init();
 
 	std::vector<Star> star_data;
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 100000; i++) {
 		Star star;
 		float a = 3.14f * 2 * (rand() / (float)RAND_MAX);
 		float b = 3.14f * (rand() / (float)RAND_MAX);

@@ -8,6 +8,7 @@
 
 #include "../core/System.h"
 #include "GLProgram.h"
+#include "GLMesh.h"
 
 class RenderSystem : public System {
 public:
@@ -57,12 +58,12 @@ private:
 
 	//Framebuffers
 	GLuint frame_buffer;
-
 	GLuint frame_texture[2];
-	GLuint distortion_map[2];
-	GLuint plane_buffer;
-	GLProgram* frame_program;
+
+	GLMesh distortion_mesh[2];
+	GLProgram* distortion_program;
 
 	GLuint generateDistortionMap(int, int, glm::vec2, std::vector<float>);
+	GLMesh generateDistortionMesh(int, int, glm::vec2, std::vector<float>);
 };
 

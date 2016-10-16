@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\System.h" />
+    <ClInclude Include="src\display\GLMesh.h" />
     <ClInclude Include="src\display\GLProgram.h" />
     <ClInclude Include="src\display\GraphicComponent.h" />
     <ClInclude Include="src\display\RenderSystem.h" />

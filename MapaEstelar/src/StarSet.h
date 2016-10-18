@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include <GL\glew.h>
 
@@ -29,9 +30,30 @@ struct Star {
 	float size;
 };
 
+struct Constellation {
+	//Nombre de las constelacíon
+	std::string name;
+
+	//Pares de indices de las estrellas que forman los trazos
+	std::vector<int> indices;
+
+	//Color del trazo
+	struct {
+		float r;
+		float g;
+		float b;
+	} color;
+
+	//No asignar
+	int loc;
+};
+
 class StarSet : public GraphicComponent {
 public:
 	StarSet(RenderSystem*);
+
+	std::vector<Star>          star_data;
+	std::vector<Constellation> constellation_data;
 
 	int update();
 	//Función de dibujo
@@ -39,10 +61,13 @@ public:
 
 	//Carga datos de las estrellas a buffers de OpenGL
 	//a partir de un vector de estrellas
-	int load(std::vector<Star>*);
-
+	int loadStars();
+	//Carga de datos de constelaciones a partir de un vector de
+	//constelaciones
+	int loadConstellations();
 private:
-	GLuint data_buffer;
+	GLuint star_buffer;
+	GLuint constellation_buffer;
 
-	int n_data;
+	int n_indices;
 };

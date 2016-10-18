@@ -7,6 +7,7 @@
 #include <osvr\ClientKit\Context.h>
 #include <GL\glew.h>
 #include <glm\glm.hpp>
+#include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
 #include "GraphicComponent.h"
@@ -15,6 +16,8 @@ RenderSystem::RenderSystem() :
 	camera_matrix(1),
 	world_matrix(1) {
 
+	camera_matrix[0][0] = 9.f / 16.f;
+	camera_matrix[1][1] = 1.f;
 }
 
 RenderSystem::~RenderSystem() {
@@ -306,6 +309,25 @@ int RenderSystem::update() {
 	while (SDL_PollEvent(&e)) {
 		if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)
 			return 0;
+		else if (e.type == SDL_KEYDOWN) {
+			switch (e.key.keysym.sym) {
+			case SDLK_RIGHT:
+				world_matrix = glm::rotate(glm::mat4(1), 2.f, glm::vec3(0, 1, 0)) * world_matrix;
+				break;
+			case SDLK_LEFT:
+				world_matrix = glm::rotate(glm::mat4(1), -2.f, glm::vec3(0, 1, 0)) * world_matrix;
+				break;
+			case SDLK_UP:
+				world_matrix = glm::rotate(glm::mat4(1), 2.f, glm::vec3(1, 0, 0)) * world_matrix;
+				break;
+			case SDLK_DOWN:
+				world_matrix = glm::rotate(glm::mat4(1), -2.f, glm::vec3(1, 0, 0)) * world_matrix;
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 
 	return 1;

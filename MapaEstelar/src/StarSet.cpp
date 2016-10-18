@@ -7,7 +7,8 @@
 
 StarSet::StarSet(RenderSystem* sys) :
 	GraphicComponent(sys),
-	data_buffer(0) {
+	star_buffer(0),
+	constellation_buffer(0) {
 	program = GLProgram::getProgram("star");
 }
 
@@ -21,15 +22,23 @@ int StarSet::render() {
 	glDisableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, data_buffer);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, position));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, color));
-	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, size));
-
 	glUniformMatrix4fv(program->uniform["world_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->world_matrix[0][0]));
 	glUniformMatrix4fv(program->uniform["camera_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->camera_matrix[0][0]));
 
-	glDrawArrays(GL_POINTS, 0, n_data);
+	if (star_buffer) {
+		glBindBuffer(GL_ARRAY_BUFFER, star_buffer);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, position));
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, color));
+		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, size));
+
+		glDrawArrays(GL_POINTS, 0, star_data.size());
+	}
+
+	if (constellation_buffer) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, constellation_buffer);
+
+		glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, 0);
+	}
 
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(3);
@@ -38,15 +47,33 @@ int StarSet::render() {
 	return 1;
 }
 
-int StarSet::load(std::vector<Star>* data) {
-	n_data = data->size();
-
-	if (data_buffer == 0) {
-		glGenBuffers(1, &data_buffer);
+int StarSet::loadStars() {
+	if (star_buffer == 0) {
+		glGenBuffers(1, &star_buffer);
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, data_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Star) * n_data, &((*data)[0]), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, star_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Star) * star_data.size(), &star_data[0], GL_STATIC_DRAW);
+
+	return 1;
+}
+
+int StarSet::loadConstellations() {
+	std::vector<int> indices;
+
+	for (auto constellation : constellation_data) {
+		constellation.loc = indices.size();
+		indices.insert(indices.end(), constellation.indices.begin(), constellation.indices.end());
+	}
+
+	n_indices = indices.size();
+
+	if (constellation_buffer == 0) {
+		glGenBuffers(1, &constellation_buffer);
+	}
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, constellation_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * n_indices, &indices[0], GL_STATIC_DRAW);
 
 	return 1;
 }

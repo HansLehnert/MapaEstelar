@@ -11,13 +11,6 @@
 
 #include "GraphicComponent.h"
 
-const float PLANE_MESH[] = {
-	1,	1,	1,	1,
-	1,	-1,	1,	0,
-	-1,	-1,	0,	0,
-	-1,	1,	0,	1
-};
-
 RenderSystem::RenderSystem() :
 	camera_matrix(1),
 	world_matrix(1) {
@@ -160,7 +153,6 @@ int RenderSystem::init() {
 
 	if (display.enabled) {
 		//De momento basta asumir 1 display, 2 ojos y 1 superficie por display;
-		//surface = new osvr::clientkit::Surface[2];
 
 		glGenTextures(2, frame_texture);
 
@@ -198,9 +190,6 @@ int RenderSystem::init() {
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-
-	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
 	distortion_program = GLProgram::getProgram("distortion");
 
@@ -248,7 +237,6 @@ int RenderSystem::update() {
 		glUseProgram(distortion_program->id);
 
 		glUniform1i(distortion_program->uniform["frame"].loc, 0);
-		//glUniform1i(distortion_program->uniform["distortion_map"].loc, 1);
 		for (int i = 0; i < 2; i++) {
 			glViewport(
 				surface_viewport[i].left,
@@ -264,9 +252,6 @@ int RenderSystem::update() {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, distortion_mesh[i].index_buffer);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-
-			//glActiveTexture(GL_TEXTURE1);
-			//glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
 
 			glDrawElements(GL_TRIANGLES, distortion_mesh[i].index_length, GL_UNSIGNED_INT, 0);
 		}
@@ -289,7 +274,6 @@ int RenderSystem::update() {
 			glUseProgram(distortion_program->id);
 
 			glUniform1i(distortion_program->uniform["frame"].loc, 0);
-			//glUniform1i(distortion_program->uniform["distortion_map"].loc, 1);
 			for (int i = 0; i < 2; i++) {
 				glViewport(
 					surface_viewport[i].left * window.width / display.bounds.w,
@@ -306,11 +290,7 @@ int RenderSystem::update() {
 				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, distortion_mesh[i].index_buffer);
 
-				//glActiveTexture(GL_TEXTURE1);
-				//glBindTexture(GL_TEXTURE_2D, distortion_map[i]);
-
 				glDrawElements(GL_TRIANGLES, distortion_mesh[i].index_length, GL_UNSIGNED_INT, 0);
-				//glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 			}
 		}
 		else { //Dibujar escena en otro caso

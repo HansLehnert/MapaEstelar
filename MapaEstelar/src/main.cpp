@@ -3,17 +3,18 @@
 
 #include "display\RenderSystem.h"
 #include "StarSet.h"
+#include "Cube.h"
 
 int main(int argc, char** argv) {
 	RenderSystem render_sys;
 	render_sys.init();
 
 	std::vector<Star> star_data;
-	for (int i = 0; i < 100000; i++) {
+	for (int i = 0; i < 1000; i++) {
 		Star star;
 		float a = 3.14f * 2 * (rand() / (float)RAND_MAX);
 		float b = 3.14f * (rand() / (float)RAND_MAX);
-		float r = 1.6f + 0.4f * (rand() / (float)RAND_MAX);
+		float r = 0.1f + 1.9f * (rand() / (float)RAND_MAX);
 		star.position.x = cos(a) * sin(b) * r;
 		star.position.y = sin(a) * sin(b) * r;
 		star.position.z = cos(b);

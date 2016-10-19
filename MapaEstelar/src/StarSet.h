@@ -4,6 +4,7 @@
 #include <string>
 
 #include <GL\glew.h>
+#include <glm\glm.hpp>
 
 #include "display\GraphicComponent.h"
 
@@ -11,20 +12,10 @@ struct Star {
 	//Posicion en coordenadas cartesianas
 	//(añadir otra representación?)
 	//"w" debe ser 1
-	struct {
-		float x;
-		float y;
-		float z;
-		float w;
-	} position;
+	glm::vec4 position;
 
 	//Color en formato RGB
-	struct {
-		float r;
-		float g;
-		float b;
-		float a;
-	} color;
+	glm::vec4 color;
 
 	//Tamaño en pixeles
 	float size;
@@ -38,11 +29,7 @@ struct Constellation {
 	std::vector<int> indices;
 
 	//Color del trazo
-	struct {
-		float r;
-		float g;
-		float b;
-	} color;
+	glm::vec4 color;
 
 	//No asignar
 	int loc;

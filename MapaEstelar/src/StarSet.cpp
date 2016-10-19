@@ -32,6 +32,9 @@ int StarSet::render() {
 		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Star), (void*)offsetof(Star, size));
 
 		glDrawArrays(GL_POINTS, 0, star_data.size());
+		/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, constellation_buffer);
+
+		glDrawElements(GL_POINTS, n_indices, GL_UNSIGNED_INT, 0);*/
 	}
 
 	if (constellation_buffer) {
@@ -48,6 +51,10 @@ int StarSet::render() {
 }
 
 int StarSet::loadStars() {
+	if (star_data.size() == 0) {
+		return 0;
+	}
+
 	if (star_buffer == 0) {
 		glGenBuffers(1, &star_buffer);
 	}
@@ -67,6 +74,10 @@ int StarSet::loadConstellations() {
 	}
 
 	n_indices = indices.size();
+
+	if (n_indices == 0) {
+		return 0;
+	}
 
 	if (constellation_buffer == 0) {
 		glGenBuffers(1, &constellation_buffer);

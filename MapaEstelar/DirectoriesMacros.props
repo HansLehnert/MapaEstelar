@@ -14,7 +14,12 @@
     <GLM_INCLUDE_DIR>D:\Hans\Source\glm</GLM_INCLUDE_DIR>
     <BIN_PATH>$(GLEW_BIN_DIR)\Release\Win32;$(OSVR_BIN_DIR);$(SDL_LIB_DIR)\x86</BIN_PATH>
   </PropertyGroup>
-  <PropertyGroup />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>DirectoriesMacros</_PropertySheetDisplayName>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>
+    </LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="GLEW_INCLUDE_DIR">

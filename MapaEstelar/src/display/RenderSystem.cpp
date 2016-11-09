@@ -14,10 +14,14 @@
 
 RenderSystem::RenderSystem() :
 	camera_matrix(1),
-	world_matrix(1) {
+	world_matrix(1),
+	zoom_dir(0) {
 
-	float z_near = 100.f;
-	float z_far = 0.1f;
+	float z_far = 1000.f;
+	float z_near = 0.1f;
+
+	zoom = glm::vec2(1, 1);
+	zoom_target = glm::vec2(1, 1);
 
 	camera_matrix[0][0] = 9.f / 16.f * 2;
 	camera_matrix[1][1] = 1.f * 2;
@@ -145,7 +149,7 @@ int RenderSystem::init() {
 	//Configuracion OpenGL
 	glewInit();
 
-	glClearColor(0, 0, 0, 1);
+	glClearColor(0, 0.02, 0.05, 1);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	glGenVertexArrays(1, &vao_common);
@@ -170,7 +174,7 @@ int RenderSystem::init() {
 			surface_viewport[i] = surface[i]->getRelativeViewport();
 
 			glBindTexture(GL_TEXTURE_2D, frame_texture[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, surface_viewport[i].width, surface_viewport[i].height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, surface_viewport[i].width + 2, surface_viewport[i].height + 2, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);//Solucion parche, arreglar
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -188,7 +192,7 @@ int RenderSystem::init() {
 				k = { 0.f, 1.f, -1.74f, 5.15f, -1.27f, -2.23f };
 			}
 
-			distortion_mesh[i] = generateDistortionMesh(32, 32, center, k);
+			distortion_mesh[i] = generateDistortionMesh(64, 64, center, k);
 		}
 		//Falta agregar depth buffers
 	}
@@ -222,7 +226,7 @@ int RenderSystem::update() {
 			const GLuint draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
 			glDrawBuffers(1, draw_buffers);
 
-			glViewport(0, 0, surface_viewport[i].width, surface_viewport[i].height);
+			glViewport(1, 1, surface_viewport[i].width, surface_viewport[i].height);
 
 			//Calcular matriz de camara
 			osvr::clientkit::Eye eye = display.config->getEye(0, surface[i]->getEyeID());
@@ -230,8 +234,13 @@ int RenderSystem::update() {
 			float view_mat[OSVR_MATRIX_SIZE];
 			float proy_mat[OSVR_MATRIX_SIZE];
 			eye.getViewMatrix(OSVR_MATRIX_COLMAJOR, view_mat);
-			surface[i]->getProjectionMatrix(0.1f, 2.f, OSVR_MATRIX_COLMAJOR, proy_mat);
+			surface[i]->getProjectionMatrix(0.01f, 1000000.f, OSVR_MATRIX_COLMAJOR, proy_mat);
 			camera_matrix = glm::make_mat4(proy_mat) * glm::make_mat4(view_mat);
+			
+			glm::mat4 zoom_matrix(1);
+			zoom_matrix[0][0] = zoom.x;
+			zoom_matrix[1][1] = zoom.x;
+			camera_matrix = zoom_matrix * camera_matrix;
 
 			renderAll();
 		}
@@ -310,27 +319,104 @@ int RenderSystem::update() {
 		SDL_GL_SwapWindow(window.handle);
 	}
 
+
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
 		if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)
 			return 0;
-		else if (e.type == SDL_KEYDOWN) {
+		else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
 			switch (e.key.keysym.sym) {
 			case SDLK_RIGHT:
-				world_matrix = glm::rotate(glm::mat4(1), 2.f, glm::vec3(0, 1, 0)) * world_matrix;
+				key_status[0] = e.type;
 				break;
 			case SDLK_LEFT:
-				world_matrix = glm::rotate(glm::mat4(1), -2.f, glm::vec3(0, 1, 0)) * world_matrix;
+				key_status[1] = e.type;
 				break;
 			case SDLK_UP:
-				world_matrix = glm::rotate(glm::mat4(1), -2.f, glm::vec3(1, 0, 0)) * world_matrix;
+				key_status[2] = e.type;
 				break;
 			case SDLK_DOWN:
-				world_matrix = glm::rotate(glm::mat4(1), 2.f, glm::vec3(1, 0, 0)) * world_matrix;
+				key_status[3] = e.type;
+				break;
+			case SDLK_q:
+				key_status[4] = e.type;
+				break;
+			case SDLK_e:
+				key_status[5] = e.type;
 				break;
 			}
 		}
 	}
+
+	//Mover a clase Camera
+	if (camera_dir.x == 0) {
+		if (key_status[0] == SDL_KEYDOWN)
+			camera_dir.x = -1;
+		else if (key_status[1] == SDL_KEYDOWN)
+			camera_dir.x = 1;
+	}
+	else if (camera_dir.x == -1 && key_status[0] == SDL_KEYUP) {
+		if (key_status[1] == SDL_KEYDOWN)
+			camera_dir.x = 1;
+		else
+			camera_dir.x = 0;
+	}
+	else if (camera_dir.x == 1 && key_status[1] == SDL_KEYUP) {
+		if (key_status[0] == SDL_KEYDOWN)
+			camera_dir.x = -1;
+		else
+			camera_dir.x = 0;
+	}
+
+	if (camera_dir.y == 0) {
+		if (key_status[2] == SDL_KEYDOWN)
+			camera_dir.y = 1;
+		else if (key_status[3] == SDL_KEYDOWN)
+			camera_dir.y = -1;
+	}
+	else if (camera_dir.y == 1 && key_status[2] == SDL_KEYUP) {
+		if (key_status[3] == SDL_KEYDOWN)
+			camera_dir.y = -1;
+		else
+			camera_dir.y = 0;
+	}
+	else if (camera_dir.y == -1 && key_status[3] == SDL_KEYUP) {
+		if (key_status[2] == SDL_KEYDOWN)
+			camera_dir.y = 1;
+		else
+			camera_dir.y = 0;
+	}
+
+	if (zoom_dir == 0) {
+		if (key_status[4] == SDL_KEYDOWN)
+			zoom_dir = 1;
+		else if (key_status[5] == SDL_KEYDOWN)
+			zoom_dir = -1;
+	}
+	else if (zoom_dir == 1 && key_status[4] == SDL_KEYUP) {
+		if (key_status[5] == SDL_KEYDOWN)
+			zoom_dir = -1;
+		else
+			zoom_dir = 0;
+	}
+	else if (zoom_dir == -1 && key_status[5] == SDL_KEYUP) {
+		if (key_status[4] == SDL_KEYDOWN)
+			zoom_dir = 1;
+		else
+			zoom_dir = 0;
+	}
+
+	camera_speed = (camera_speed + 0.1f * camera_dir) * 0.95f;
+
+	if (zoom_dir == 1)
+		zoom_target *= 1.02f;
+	else if (zoom_dir == -1)
+		zoom_target /= 1.02f;
+
+	zoom = zoom_target * 0.4f + zoom * 0.6f;
+
+	world_matrix = glm::rotate(glm::mat4(1), camera_speed.x, glm::vec3(0, 1, 0)) * world_matrix;
+	world_matrix = glm::rotate(glm::mat4(1), camera_speed.y, glm::vec3(1, 0, 0)) * world_matrix;
 
 	return 1;
 }

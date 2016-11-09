@@ -3,12 +3,12 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SDL_INCLUDE_DIR);$(GLEW_INCLUDE_DIR);$(BOOST_INCLUDE_DIR);$(OSVR_INCLUDE_DIR);$(GLM_INCLUDE_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(GLEW_LIB_DIR)\Release\Win32;$(OSVR_LIB_DIR);$(SDL_LIB_DIR)\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SDL_INCLUDE_DIR);$(GLEW_INCLUDE_DIR);$(BOOST_INCLUDE_DIR);$(OSVR_INCLUDE_DIR);$(GLM_INCLUDE_DIR);$(FREETYPE_INCLUDE_DIR);$(IncludePath)</IncludePath>
+    <LibraryPath>$(GLEW_LIB_DIR)\Release\Win32;$(OSVR_LIB_DIR);$(SDL_LIB_DIR)\x86;$(FREETYPE_LIB_DIR);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;osvrClientd.lib;osvrClientKitd.lib;osvrCommond.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;osvrClientd.lib;osvrClientKitd.lib;osvrCommond.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

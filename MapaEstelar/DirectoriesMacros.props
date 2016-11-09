@@ -12,7 +12,10 @@
     <SDL_LIB_DIR>D:\Hans\Source\SDL2-2.0.4\lib</SDL_LIB_DIR>
     <BOOST_INCLUDE_DIR>D:\Hans\Source\boost_1_62_0</BOOST_INCLUDE_DIR>
     <GLM_INCLUDE_DIR>D:\Hans\Source\glm</GLM_INCLUDE_DIR>
-    <BIN_PATH>$(GLEW_BIN_DIR)\Release\Win32;$(OSVR_BIN_DIR);$(SDL_LIB_DIR)\x86</BIN_PATH>
+    <FREETYPE_INCLUDE_DIR>C:\Program Files (x86)\GnuWin32\include</FREETYPE_INCLUDE_DIR>
+    <FREETYPE_LIB_DIR>C:\Program Files (x86)\GnuWin32\lib</FREETYPE_LIB_DIR>
+    <FREETYPE_BIN_DIR>C:\Program Files (x86)\GnuWin32\bin</FREETYPE_BIN_DIR>
+    <BIN_PATH>$(GLEW_BIN_DIR)\Release\Win32;$(OSVR_BIN_DIR);$(SDL_LIB_DIR)\x86;$(FREETYPE_BIN_DIR)</BIN_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>DirectoriesMacros</_PropertySheetDisplayName>
@@ -54,6 +57,15 @@
     </BuildMacro>
     <BuildMacro Include="GLM_INCLUDE_DIR">
       <Value>$(GLM_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FREETYPE_INCLUDE_DIR">
+      <Value>$(FREETYPE_INCLUDE_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FREETYPE_LIB_DIR">
+      <Value>$(FREETYPE_LIB_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FREETYPE_BIN_DIR">
+      <Value>$(FREETYPE_BIN_DIR)</Value>
     </BuildMacro>
     <BuildMacro Include="BIN_PATH">
       <Value>$(BIN_PATH)</Value>

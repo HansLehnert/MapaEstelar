@@ -30,6 +30,9 @@
     <ClCompile Include="src\display\GLProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\display\text\TextManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\display\RenderSystem.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\display\GLMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display\text\TextManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

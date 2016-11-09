@@ -65,5 +65,14 @@ private:
 
 	GLuint generateDistortionMap(int, int, glm::vec2, std::vector<float>);
 	GLMesh generateDistortionMesh(int, int, glm::vec2, std::vector<float>);
+
+	//Sacar de aqui!!!!
+	int key_status[7];
+	glm::vec2 camera_dir;
+	glm::vec2 camera_speed;
+
+	float zoom_dir;
+	glm::vec2 zoom_target;
+	glm::vec2 zoom;
 };
 

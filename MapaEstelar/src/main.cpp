@@ -142,14 +142,15 @@ int main(int argc, char** argv) {
 		std::cout << "Failed to load star data." << std::endl;
 		return 0;
 	}
-
+	
 	if (loadConstellationData("ConstDesignation.csv", &main_set.constellation_data)) {
 		main_set.loadConstellations();
 	}
 	else {
 		std::cout << "Failed to load constellation data." << std::endl;
 	}
-	/*for (int i = 0; i < 1000; i++) {
+	/*
+	for (int i = 0; i < 1000; i++) {
 		Star star;
 		float a = 3.14f * 2 * (rand() / (float)RAND_MAX);
 		float b = 3.14f * (rand() / (float)RAND_MAX);
@@ -164,7 +165,9 @@ int main(int argc, char** argv) {
 		star.color.a = 1;
 		star.size = 1 + (rand() / (float)RAND_MAX) * 4;
 		main_set.star_data.push_back(star);
-	}*/
+	}
+
+	main_set.loadStars();*/
 	
 	/*for (int i = 0; i < 10; i++) {
 		Constellation constellation;

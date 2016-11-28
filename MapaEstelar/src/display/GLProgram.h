@@ -20,7 +20,5 @@ public:
 private:
 	static std::map<std::string, GLProgram> program_cache;
 	static GLuint loadShader(std::string, GLuint);
-
-	
 };
 

@@ -6,4 +6,5 @@ out vec4 frag_color;
 
 void main() {
 	frag_color = star_color;
+	//frag_color.a = (1 - length(2 * (gl_PointCoord - vec2(0.5)))) * star_color.a;
 }

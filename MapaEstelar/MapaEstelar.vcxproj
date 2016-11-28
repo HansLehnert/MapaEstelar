@@ -101,7 +101,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;osvrClientd.lib;osvrClientKitd.lib;osvrCommond.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -155,7 +154,8 @@
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\display\GLProgram.cpp" />
     <ClCompile Include="src\display\RenderSystem.cpp" />
-    <ClCompile Include="src\display\text\TextManager.cpp" />
+    <ClCompile Include="src\display\text\Font.cpp" />
+    <ClCompile Include="src\display\text\Label.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\StarSet.cpp" />
   </ItemGroup>
@@ -166,7 +166,8 @@
     <ClInclude Include="src\display\GLProgram.h" />
     <ClInclude Include="src\display\GraphicComponent.h" />
     <ClInclude Include="src\display\RenderSystem.h" />
-    <ClInclude Include="src\display\text\TextManager.h" />
+    <ClInclude Include="src\display\text\Font.h" />
+    <ClInclude Include="src\display\text\Label.h" />
     <ClInclude Include="src\StarSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

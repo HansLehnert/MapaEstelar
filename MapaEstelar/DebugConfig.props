@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;osvrClientd.lib;osvrClientKitd.lib;osvrCommond.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;SDL2.lib;osvrClientd.lib;osvrClientKitd.lib;osvrCommond.lib;freetype27d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

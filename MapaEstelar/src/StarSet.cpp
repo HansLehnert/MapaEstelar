@@ -18,9 +18,9 @@ int StarSet::update(){
 
 int StarSet::render() {
 	glUseProgram(program->id);
-	glDisableVertexAttribArray(1);
+	/*glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(4);*/
 	
 	glUniformMatrix4fv(program->uniform["world_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->world_matrix[0][0]));
 	glUniformMatrix4fv(program->uniform["camera_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->camera_matrix[0][0]));
@@ -43,9 +43,9 @@ int StarSet::render() {
 		glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, 0);
 	}
 
-	glEnableVertexAttribArray(1);
+	/*glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(3);
-	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(4);*/
 
 	return 1;
 }

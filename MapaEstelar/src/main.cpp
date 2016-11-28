@@ -5,6 +5,7 @@
 #include <string>
 
 #include "display\RenderSystem.h"
+#include "display\text\Label.h"
 #include "StarSet.h"
 
 int loadStarData(std::string file_name, std::vector<Star>* data) {
@@ -17,11 +18,16 @@ int loadStarData(std::string file_name, std::vector<Star>* data) {
 			Star new_star;
 			star_file.read((char*)&new_star, sizeof(new_star));
 
+			new_star.position.x *= 100;
+			new_star.position.y *= 100;
+			new_star.position.z *= 100;
 			new_star.color /= 256.f;
-			new_star.size = 1 * log(new_star.size) - 4;
-			if (new_star.size < 1) {
-				new_star.color *= std::max(0.6f, new_star.size);
-				new_star.size = 1;
+			new_star.color.a = 1;
+			new_star.size = 1 * log(new_star.size) - 3;
+			if (new_star.size < 2) {
+				//new_star.color *= std::max(0.6f, new_star.size);
+				new_star.color.a = std::max(0.1f, new_star.size / 2);
+				new_star.size = 2;
 			}
 
 			//new_star.size = 4;
@@ -132,6 +138,10 @@ int loadConstellationData(std::string file_name, std::vector<Constellation>* dat
 int main(int argc, char** argv) {
 	RenderSystem render_sys;
 	render_sys.init();
+
+	Label label(&render_sys, "rsrc/font/MuseoSans-500.otf", "Hola mundo!");
+	label.color = glm::vec4(1, 1, 0.8, 1);
+	label.position.z = 1;
 
 	StarSet main_set(&render_sys);
 

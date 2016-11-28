@@ -108,6 +108,7 @@ int RenderSystem::init() {
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
 	//Crear contexto para ventana
 	if (window.enabled) {
@@ -149,8 +150,11 @@ int RenderSystem::init() {
 	//Configuracion OpenGL
 	glewInit();
 
-	glClearColor(0, 0.02, 0.05, 1);
+	glClearColor(0.f, 0.02f, 0.05f, 0.f);
 	glEnable(GL_PROGRAM_POINT_SIZE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glGenVertexArrays(1, &vao_common);
 	glBindVertexArray(vao_common);
@@ -158,6 +162,7 @@ int RenderSystem::init() {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
 
 	//Configurar framebuffers

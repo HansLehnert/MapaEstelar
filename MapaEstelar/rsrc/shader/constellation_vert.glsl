@@ -11,10 +11,7 @@ out vec4 star_color;
 uniform mat4 model_matrix;
 uniform mat4 world_matrix;
 uniform mat4 camera_matrix;
-uniform float size_scale;
 
 void main() {
 	gl_Position = camera_matrix * world_matrix * position;
-	gl_PointSize = size * size_scale;
-	star_color = color;
 }

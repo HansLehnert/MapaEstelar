@@ -8,6 +8,10 @@
 
 FT_Library library;
 
+std::map<std::string, Font> Font::font_cache;
+
+Font::Font() {}
+
 Font::Font(std::string file_name) {
 	if (library == nullptr)
 		initFreetype();
@@ -76,4 +80,21 @@ void Font::initFreetype() {
 	if (error) {
 		std::cout << "Failed to initialize Freetype library" << std::endl;
 	}
+}
+
+Font* Font::getFont(std::string name) {
+	if (font_cache.find(name) == font_cache.end()) {
+		Font new_font(name);
+
+		font_cache[name] = new_font;
+	}
+	return &font_cache[name];
+}
+
+GLuint Font::getTextureId() {
+	return texture;
+}
+
+const Character* Font::getCharData() {
+	return char_data;
 }

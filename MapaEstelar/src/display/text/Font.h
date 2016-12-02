@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <string>
 
 #include <GL\glew.h>
@@ -18,14 +19,21 @@ struct Character {
 
 class Font {
 public:
+	Font();
+
+	int font_size;
+	GLuint getTextureId();
+	const Character* getCharData();
+	
+	static Font* getFont(std::string);
+private:
 	Font(std::string);
+	static void initFreetype();
 
 	GLuint texture;
 	Character char_data[256];
 
-	int font_size;
-private:
-	static void initFreetype();
-
 	FT_Face face;
+
+	static std::map<std::string, Font> font_cache;
 };

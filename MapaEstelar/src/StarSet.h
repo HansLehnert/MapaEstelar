@@ -31,6 +31,9 @@ struct Constellation {
 	//Color del trazo
 	glm::vec4 color;
 
+	//Posicion media de la constelación
+	glm::vec4 position;
+
 	//No asignar
 	int loc;
 };
@@ -55,6 +58,9 @@ public:
 private:
 	GLuint star_buffer;
 	GLuint constellation_buffer;
+
+	GLProgram* program_stars;
+	GLProgram* program_constellations;
 
 	int n_indices;
 };

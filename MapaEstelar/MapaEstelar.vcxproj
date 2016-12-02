@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\DataManager.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\display\GLProgram.cpp" />
     <ClCompile Include="src\display\RenderSystem.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="src\StarSet.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\DataManager.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\System.h" />
     <ClInclude Include="src\display\GLMesh.h" />

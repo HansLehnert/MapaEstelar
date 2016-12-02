@@ -6,6 +6,7 @@
 
 #include "display\RenderSystem.h"
 #include "display\text\Label.h"
+#include "DataManager.h"
 #include "StarSet.h"
 
 int loadStarData(std::string file_name, std::vector<Star>* data) {
@@ -139,11 +140,9 @@ int main(int argc, char** argv) {
 	RenderSystem render_sys;
 	render_sys.init();
 
-	Label label(&render_sys, "rsrc/font/MuseoSans-500.otf", "Hola mundo!");
-	label.color = glm::vec4(1, 1, 0.8, 1);
-	label.position.z = 1;
-
 	StarSet main_set(&render_sys);
+	DataManager data_manager;
+	std::vector<Label*> constellation_label;
 
 	if (loadStarData("DataStars.csv", &main_set.star_data)) {
 		main_set.loadStars();
@@ -155,6 +154,24 @@ int main(int argc, char** argv) {
 	
 	if (loadConstellationData("ConstDesignation.csv", &main_set.constellation_data)) {
 		main_set.loadConstellations();
+
+		for (auto constellation : main_set.constellation_data) {
+			Label* new_label = new Label(&render_sys,
+				                         "rsrc/font/MuseoSans-500.otf",
+				                         data_manager.getName(constellation.name));
+
+			new_label->position = constellation.position;
+			new_label->position = glm::normalize(constellation.position);
+			new_label->position *= 10;
+			new_label->position.w = 1;
+
+			new_label->color = glm::vec4(0.8f, 0.9f, 1.0f, 0.8f);
+			new_label->size = glm::vec2(0.04f);
+
+			new_label->setWhitespaceWidth(0.5);
+
+			constellation_label.push_back(new_label);
+		}
 	}
 	else {
 		std::cout << "Failed to load constellation data." << std::endl;
@@ -192,6 +209,7 @@ int main(int argc, char** argv) {
 		main_set.constellation_data.push_back(constellation);
 	}*/
 
+	float t = 0;
 	while (render_sys.update()) {
 		continue;
 	}

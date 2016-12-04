@@ -12,10 +12,11 @@
 
 class Label : public GraphicComponent {
 public:
-	Label(RenderSystem*, std::string, std::string);
+	Label(RenderSystem*, Object*, std::string, std::string);
 
 	int render();
 	int update();
+	int sendMessage(Message);
 
 	glm::vec4 color;
 	glm::vec4 position;

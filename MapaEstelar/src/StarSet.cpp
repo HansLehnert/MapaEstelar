@@ -5,8 +5,8 @@
 
 #include <GL\glew.h>
 
-StarSet::StarSet(RenderSystem* sys) :
-	GraphicComponent(sys),
+StarSet::StarSet(RenderSystem* sys, Object* obj) :
+	GraphicComponent(sys, obj),
 	star_buffer(0),
 	constellation_buffer(0) {
 
@@ -14,7 +14,11 @@ StarSet::StarSet(RenderSystem* sys) :
 	program_constellations = GLProgram::getProgram("constellation");
 }
 
-int StarSet::update(){
+int StarSet::update() {
+	return 1;
+}
+
+int StarSet::sendMessage(Message) {
 	return 1;
 }
 
@@ -22,8 +26,8 @@ int StarSet::render() {
 	if (star_buffer) {
 		glUseProgram(program_stars->id);
 	
-		glUniformMatrix4fv(program_stars->uniform["world_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->world_matrix[0][0]));
-		glUniformMatrix4fv(program_stars->uniform["camera_matrix"].loc, 1, GL_FALSE, &(((RenderSystem*)system)->camera_matrix[0][0]));
+		glUniformMatrix4fv(program_stars->uniform["world_matrix"].loc, 1, GL_FALSE, (GLfloat*)&render_system->world_matrix);
+		glUniformMatrix4fv(program_stars->uniform["camera_matrix"].loc, 1, GL_FALSE, (GLfloat*)&render_system->camera_matrix);
 		glUniform1f(program_stars->uniform["size_scale"].loc, 1.0f);
 
 		glBindBuffer(GL_ARRAY_BUFFER, star_buffer);
@@ -47,11 +51,11 @@ int StarSet::render() {
 		glUniformMatrix4fv(program_constellations->uniform["world_matrix"].loc,
 			               1,
 			               GL_FALSE,
-			               &(((RenderSystem*)system)->world_matrix[0][0]));
+			               (GLfloat*)&render_system->world_matrix);
 		glUniformMatrix4fv(program_constellations->uniform["camera_matrix"].loc, 
 			               1,
 			               GL_FALSE,
-			               &(((RenderSystem*)system)->camera_matrix[0][0]));
+			               (GLfloat*)&render_system->camera_matrix);
 
 
 		glDrawElements(GL_LINES, n_indices, GL_UNSIGNED_INT, 0);

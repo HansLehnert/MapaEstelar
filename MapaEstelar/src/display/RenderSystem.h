@@ -6,7 +6,8 @@
 #include <glm\glm.hpp>
 #include <GL\glew.h>
 
-#include "../core/System.h"
+#include "..\core\System.h"
+#include "..\input\InputSystem.h"
 #include "GLProgram.h"
 #include "GLMesh.h"
 
@@ -17,7 +18,10 @@ public:
 
 	int init();
 	int update();
+	int sendMessage(Message);
 	int renderAll();
+
+	int bindInput(InputSystem*);
 
 	glm::mat4 getCameraMatrix();
 	glm::mat4 getWorldMatrix();
@@ -66,13 +70,11 @@ private:
 	GLuint generateDistortionMap(int, int, glm::vec2, std::vector<float>);
 	GLMesh generateDistortionMesh(int, int, glm::vec2, std::vector<float>);
 
-	//Sacar de aqui!!!!
-	int key_status[7];
-	glm::vec2 camera_dir;
-	glm::vec2 camera_speed;
+	//Sistema de entrada
+	InputSystem* input_system;
 
-	float zoom_dir;
-	glm::vec2 zoom_target;
-	glm::vec2 zoom;
+	//Matriz de camara base
+	//Obtenida de posición del visor, o posicion inicial
+	glm::mat4 base_camera_matrix;
 };
 

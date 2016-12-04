@@ -13,21 +13,20 @@
 #include "GraphicComponent.h"
 
 RenderSystem::RenderSystem() :
+	base_camera_matrix(1),
 	camera_matrix(1),
 	world_matrix(1),
-	zoom_dir(0) {
+	input_system(nullptr) {
 
 	float z_far = 1000.f;
 	float z_near = 0.1f;
 
-	zoom = glm::vec2(1, 1);
-	zoom_target = glm::vec2(1, 1);
-
-	camera_matrix[0][0] = 9.f / 16.f * 2;
-	camera_matrix[1][1] = 1.f * 2;
-	camera_matrix[2][2] = 1.f;
-	camera_matrix[2][3] = (z_far + z_near) / (z_far - z_near);
+	base_camera_matrix[0][0] = 9.f / 16.f * 2;
+	base_camera_matrix[1][1] = 1.f * 2;
+	base_camera_matrix[2][2] = 1.f;
+	base_camera_matrix[2][3] = (z_far + z_near) / (z_far - z_near);
 }
+
 
 RenderSystem::~RenderSystem() {
 	if (display.enabled) {
@@ -217,6 +216,13 @@ int RenderSystem::init() {
 int RenderSystem::update() {
 	osvr_context->update();
 
+	//Resetear modificador externo de matrixz de cámara.
+	//Puede ser cambiada por algún componente en el siguiente paso
+	camera_matrix = glm::mat4(1);
+
+	//Actualizar todas las componentes gráficas
+	updateAll();
+
 	//Dibujar en HMD
 	if (display.enabled) {
 		SDL_GL_MakeCurrent(display.handle, render_context);
@@ -236,16 +242,17 @@ int RenderSystem::update() {
 			//Calcular matriz de camara
 			osvr::clientkit::Eye eye = display.config->getEye(0, surface[i]->getEyeID());
 
+			//Obtener matriz de cámara correspondiente al HMD
 			float view_mat[OSVR_MATRIX_SIZE];
 			float proy_mat[OSVR_MATRIX_SIZE];
 			eye.getViewMatrix(OSVR_MATRIX_COLMAJOR, view_mat);
 			surface[i]->getProjectionMatrix(0.01f, 1000000.f, OSVR_MATRIX_COLMAJOR, proy_mat);
-			camera_matrix = glm::make_mat4(proy_mat) * glm::make_mat4(view_mat);
-			
-			glm::mat4 zoom_matrix(1);
-			zoom_matrix[0][0] = zoom.x;
-			zoom_matrix[1][1] = zoom.x;
-			camera_matrix = zoom_matrix * camera_matrix;
+			base_camera_matrix = glm::make_mat4(proy_mat) * glm::make_mat4(view_mat);
+
+			//Calcular la matriz de cámara a utilizar para dibujar.
+			//"base_camera_matrix" proviene del sistema mientras que "camera_matrix"
+			//es un modificador externo
+			camera_matrix = base_camera_matrix * camera_matrix;
 
 			renderAll();
 		}
@@ -318,6 +325,8 @@ int RenderSystem::update() {
 		else { //Dibujar escena en otro caso
 			glViewport(0, 0, window.width, window.height);
 
+			camera_matrix = base_camera_matrix * camera_matrix;
+
 			renderAll();
 		}
 		
@@ -325,36 +334,35 @@ int RenderSystem::update() {
 	}
 
 
+	//Manejar eventos, enviar eventos de entrada a sistema de entrada
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
-		if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE)
-			return 0;
-		else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
-			switch (e.key.keysym.sym) {
-			case SDLK_RIGHT:
-				key_status[0] = e.type;
-				break;
-			case SDLK_LEFT:
-				key_status[1] = e.type;
-				break;
-			case SDLK_UP:
-				key_status[2] = e.type;
-				break;
-			case SDLK_DOWN:
-				key_status[3] = e.type;
-				break;
-			case SDLK_q:
-				key_status[4] = e.type;
-				break;
-			case SDLK_e:
-				key_status[5] = e.type;
-				break;
+		switch (e.type) {
+		case SDL_WINDOWEVENT:
+			if (e.window.event == SDL_WINDOWEVENT_CLOSE)
+				return 0;
+			break;
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+		case SDL_MOUSEMOTION:
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEWHEEL:
+			if (input_system != nullptr) {
+				Message input_message;
+				input_message.type = MSG_SDL;
+				input_message.sdl.source = nullptr;
+				input_message.sdl.event = e;
+				input_system->sendMessage(input_message);
 			}
+			break;
+		default:
+			break;
 		}
 	}
 
 	//Mover a clase Camera
-	if (camera_dir.x == 0) {
+	/*if (camera_dir.x == 0) {
 		if (key_status[0] == SDL_KEYDOWN)
 			camera_dir.x = -1;
 		else if (key_status[1] == SDL_KEYDOWN)
@@ -422,7 +430,7 @@ int RenderSystem::update() {
 
 	world_matrix = glm::rotate(glm::mat4(1), camera_speed.x, glm::vec3(0, 1, 0)) * world_matrix;
 	world_matrix = glm::rotate(glm::mat4(1), camera_speed.y, glm::vec3(1, 0, 0)) * world_matrix;
-
+	*/
 	return 1;
 }
 
@@ -438,13 +446,26 @@ int RenderSystem::renderAll() {
 }
 
 
-glm::mat4 RenderSystem::getCameraMatrix() {
-	return camera_matrix;
+int RenderSystem::sendMessage(Message) {
+	return 1;
 }
+
+
+int RenderSystem::bindInput(InputSystem* system) {
+	input_system = system;
+	return 1;
+}
+
+
+glm::mat4 RenderSystem::getCameraMatrix() {
+	return base_camera_matrix;
+}
+
 
 glm::mat4 RenderSystem::getWorldMatrix() {
 	return world_matrix;
 }
+
 
 GLuint RenderSystem::generateDistortionMap(int width, int height, glm::vec2 center, std::vector<float> k) {
 	glm::vec3* texture_data = new glm::vec3[width * height];
@@ -475,6 +496,7 @@ GLuint RenderSystem::generateDistortionMap(int width, int height, glm::vec2 cent
 
 	return texture;
 }
+
 
 GLMesh RenderSystem::generateDistortionMesh(int width, int height, glm::vec2 center, std::vector<float> k) {
 	GLMesh mesh;

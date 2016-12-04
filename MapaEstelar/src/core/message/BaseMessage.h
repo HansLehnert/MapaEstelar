@@ -1,8 +1,15 @@
 #pragma once
 
-class Entity;
+class Object;
+
+enum MessageType {
+	MSG_BASE,
+	MSG_INPUT,
+	MSG_ACTION,
+	MSG_SDL,
+};
 
 struct BaseMessage {
-	int type;
-	Entity* source;
+	MessageType type;
+	Object* source;
 };

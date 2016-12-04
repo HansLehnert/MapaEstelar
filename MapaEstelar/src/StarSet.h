@@ -40,12 +40,13 @@ struct Constellation {
 
 class StarSet : public GraphicComponent {
 public:
-	StarSet(RenderSystem*);
+	StarSet(RenderSystem*, Object* = nullptr);
 
 	std::vector<Star>          star_data;
 	std::vector<Constellation> constellation_data;
 
 	int update();
+	int sendMessage(Message);
 	//Función de dibujo
 	int render();
 

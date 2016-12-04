@@ -3,14 +3,14 @@
 #include <string>
 #include <vector>
 
-Label::Label(RenderSystem* sys, std::string font_name, std::string label_text = " ") :
-	GraphicComponent(sys),
+Label::Label(RenderSystem* sys, Object* obj, std::string font_name, std::string label_text) :
+	GraphicComponent(sys, obj),
 	text(label_text),
 	color(1), 
 	position(0, 0, 0, 1),
 	size(0.1, 0.1),
 	alignment(Alignment::CENTER),
-	whitespace_width(0.8), 
+	whitespace_width(0.8f), 
 	char_spacing(0.02f) {
 
 	program = GLProgram::getProgram("text");
@@ -31,13 +31,13 @@ Label::Label(RenderSystem* sys, std::string font_name, std::string label_text = 
 int Label::render() {
 	glUseProgram(program->id);
 
-	glm::mat4 camera_matrix = ((RenderSystem*)system)->camera_matrix;
 	glm::vec2 scale;
-	scale.x = glm::length(camera_matrix * glm::vec4(1, 0, 0, 0)) * size.x;
-	scale.y = glm::length(camera_matrix * glm::vec4(0, 1, 0, 0)) * size.y;
 
-	glUniformMatrix4fv(uniform_world_mat, 1, GL_FALSE, (GLfloat*)&((RenderSystem*)system)->world_matrix);
-	glUniformMatrix4fv(uniform_camera_mat, 1, GL_FALSE, (GLfloat*)&camera_matrix);
+	scale.x = glm::length(render_system->getCameraMatrix() * glm::vec4(1, 0, 0, 0)) * size.x;
+	scale.y = glm::length(render_system->getCameraMatrix() * glm::vec4(0, 1, 0, 0)) * size.y;
+
+	glUniformMatrix4fv(uniform_world_mat, 1, GL_FALSE, (GLfloat*)&render_system->world_matrix);
+	glUniformMatrix4fv(uniform_camera_mat, 1, GL_FALSE, (GLfloat*)&render_system->camera_matrix);
 	glUniform2fv(uniform_scale, 1, (GLfloat*)&scale);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -58,6 +58,10 @@ int Label::render() {
 }
 
 int Label::update() {
+	return 1;
+}
+
+int Label::sendMessage(Message) {
 	return 1;
 }
 

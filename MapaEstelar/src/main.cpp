@@ -6,8 +6,12 @@
 
 #include "display\RenderSystem.h"
 #include "display\text\Label.h"
+
+#include "input\KeyboardMouseInputSystem.h"
+
 #include "DataManager.h"
 #include "StarSet.h"
+#include "CameraObject.h"
 
 int loadStarData(std::string file_name, std::vector<Star>* data) {
 	std::ifstream star_file;
@@ -86,6 +90,7 @@ int loadStarData(std::string file_name, std::vector<Star>* data) {
 	return 1;
 }
 
+
 int loadConstellationData(std::string file_name, std::vector<Constellation>* data) {
 	std::ifstream constellation_file("rsrc/dataset/" + file_name);
 
@@ -138,8 +143,12 @@ int loadConstellationData(std::string file_name, std::vector<Constellation>* dat
 
 int main(int argc, char** argv) {
 	RenderSystem render_sys;
-	render_sys.init();
+	KeyboardMouseInputSystem input_sys;
 
+	render_sys.init();
+	render_sys.bindInput(&input_sys);
+
+	CameraObject camera(&render_sys, &input_sys);
 	StarSet main_set(&render_sys);
 	DataManager data_manager;
 	std::vector<Label*> constellation_label;
@@ -157,6 +166,7 @@ int main(int argc, char** argv) {
 
 		for (auto constellation : main_set.constellation_data) {
 			Label* new_label = new Label(&render_sys,
+				                         nullptr,
 				                         "rsrc/font/MuseoSans-500.otf",
 				                         data_manager.getName(constellation.name));
 
@@ -176,42 +186,10 @@ int main(int argc, char** argv) {
 	else {
 		std::cout << "Failed to load constellation data." << std::endl;
 	}
-	/*
-	for (int i = 0; i < 1000; i++) {
-		Star star;
-		float a = 3.14f * 2 * (rand() / (float)RAND_MAX);
-		float b = 3.14f * (rand() / (float)RAND_MAX);
-		float r = 1.6f + 0.4f * (rand() / (float)RAND_MAX);
-		star.position.x = cos(a) * sin(b) * r;
-		star.position.y = sin(a) * sin(b) * r;
-		star.position.z = cos(b) * r;
-		star.position.w = 1;
-		star.color.r = (rand() / (float)RAND_MAX) * 0.6f + 0.4f;
-		star.color.g = (rand() / (float)RAND_MAX) * 0.6f + 0.4f;
-		star.color.b = (rand() / (float)RAND_MAX) * 0.6f + 0.4f;
-		star.color.a = 1;
-		star.size = 1 + (rand() / (float)RAND_MAX) * 4;
-		main_set.star_data.push_back(star);
-	}
-
-	main_set.loadStars();*/
-	
-	/*for (int i = 0; i < 10; i++) {
-		Constellation constellation;
-		constellation.color = { 1.f, 1.f, 1.f, 1.f };
-		int n = rand() % 10;
-		int last = rand() % main_set.star_data.size();
-		for (int j = 0; j < n; j++) {
-			constellation.indices.push_back(last);
-			last = rand() % main_set.star_data.size();
-			constellation.indices.push_back(last);
-		}
-		main_set.constellation_data.push_back(constellation);
-	}*/
 
 	float t = 0;
 	while (render_sys.update()) {
-		continue;
+		input_sys.update();
 	}
 
 	return 1;

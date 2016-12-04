@@ -151,16 +151,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\System.cpp" />
     <ClCompile Include="src\DataManager.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\display\GLProgram.cpp" />
     <ClCompile Include="src\display\RenderSystem.cpp" />
+    <ClCompile Include="src\display\CameraControl.cpp" />
     <ClCompile Include="src\display\text\Font.cpp" />
     <ClCompile Include="src\display\text\Label.cpp" />
+    <ClCompile Include="src\input\InputComponent.cpp" />
+    <ClCompile Include="src\input\InputSystem.cpp" />
+    <ClCompile Include="src\input\KeyboardMouseInputSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\input\ManipulationInput.cpp" />
     <ClCompile Include="src\StarSet.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CameraObject.h" />
+    <ClInclude Include="src\display\CameraControl.h" />
+    <ClInclude Include="src\core\message\ActionMessage.h" />
+    <ClInclude Include="src\core\message\BaseMessage.h" />
+    <ClInclude Include="src\core\message\InputMessage.h" />
+    <ClInclude Include="src\core\message\Message.h" />
+    <ClInclude Include="src\core\message\SDLMessage.h" />
+    <ClInclude Include="src\core\Object.h" />
     <ClInclude Include="src\DataManager.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\System.h" />
@@ -170,6 +184,10 @@
     <ClInclude Include="src\display\RenderSystem.h" />
     <ClInclude Include="src\display\text\Font.h" />
     <ClInclude Include="src\display\text\Label.h" />
+    <ClInclude Include="src\input\InputComponent.h" />
+    <ClInclude Include="src\input\InputSystem.h" />
+    <ClInclude Include="src\input\KeyboardMouseInputSystem.h" />
+    <ClInclude Include="src\input\ManipulationInput.h" />
     <ClInclude Include="src\StarSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

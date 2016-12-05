@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CameraObject.h" />
+    <ClInclude Include="src\core\message\QueryMessage.h" />
     <ClInclude Include="src\display\CameraControl.h" />
     <ClInclude Include="src\core\message\ActionMessage.h" />
     <ClInclude Include="src\core\message\BaseMessage.h" />

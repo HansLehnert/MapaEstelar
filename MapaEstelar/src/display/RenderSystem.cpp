@@ -252,7 +252,7 @@ int RenderSystem::update() {
 			//Calcular la matriz de cámara a utilizar para dibujar.
 			//"base_camera_matrix" proviene del sistema mientras que "camera_matrix"
 			//es un modificador externo
-			camera_matrix = base_camera_matrix * camera_matrix;
+			camera_matrix = camera_matrix * base_camera_matrix;
 
 			renderAll();
 		}
@@ -325,7 +325,7 @@ int RenderSystem::update() {
 		else { //Dibujar escena en otro caso
 			glViewport(0, 0, window.width, window.height);
 
-			camera_matrix = base_camera_matrix * camera_matrix;
+			camera_matrix = camera_matrix * base_camera_matrix;
 
 			renderAll();
 		}

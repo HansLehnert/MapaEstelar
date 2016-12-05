@@ -7,6 +7,7 @@ enum MessageType {
 	MSG_INPUT,
 	MSG_ACTION,
 	MSG_SDL,
+	MSG_QUERY
 };
 
 struct BaseMessage {

@@ -2,8 +2,6 @@
 
 #include "BaseMessage.h"
 
-#include <glm\glm.hpp>
-
 enum InputEvent {
 	MSG_INPUT_MOVE,
 	MSG_INPUT_CLICK,

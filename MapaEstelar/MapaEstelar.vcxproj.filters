@@ -125,5 +125,8 @@
     <ClInclude Include="src\CameraObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\message\QueryMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

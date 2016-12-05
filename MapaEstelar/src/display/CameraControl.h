@@ -6,13 +6,15 @@
 
 class CameraControl : public GraphicComponent {
 public:
-	CameraControl(RenderSystem* sys, Object* obj) :
-		GraphicComponent(sys, obj) { }
+	CameraControl(RenderSystem*, Object*);
 
 	int update();
 	int render();
 	int sendMessage(Message);
 
 private:
-	glm::mat4 camera_matrix;
+	glm::mat4 world_matrix;
+
+	glm::vec2 zoom_current;
+	glm::vec2 zoom_target;
 };

@@ -8,7 +8,7 @@ enum QueryType {
 };
 
 enum QueryValue {
-	MSG_QUERY_POSITION
+	MSG_QUERY_LOCATION
 };
 
 struct QueryMessage : public BaseMessage {
@@ -19,8 +19,7 @@ struct QueryMessage : public BaseMessage {
 		struct {
 			float x;
 			float y;
-			float z;
-			float w;
+			float r;
 		} position;
 	};
 };

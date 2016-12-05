@@ -1,6 +1,6 @@
 #pragma once
 
-class Object;
+class Component;
 
 enum MessageType {
 	MSG_BASE,
@@ -12,5 +12,5 @@ enum MessageType {
 
 struct BaseMessage {
 	MessageType type;
-	Object* source;
+	Component* source;
 };

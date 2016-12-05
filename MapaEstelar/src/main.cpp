@@ -8,6 +8,7 @@
 #include "display\text\Label.h"
 
 #include "input\KeyboardMouseInputSystem.h"
+#include "input\HighlightInput.h"
 
 #include "DataManager.h"
 #include "StarSet.h"
@@ -151,7 +152,7 @@ int main(int argc, char** argv) {
 	CameraObject camera(&render_sys, &input_sys);
 	StarSet main_set(&render_sys);
 	DataManager data_manager;
-	std::vector<Label*> constellation_label;
+	std::vector<Object*> constellation_label;
 
 	if (loadStarData("DataStars.csv", &main_set.star_data)) {
 		main_set.loadStars();
@@ -165,22 +166,33 @@ int main(int argc, char** argv) {
 		main_set.loadConstellations();
 
 		for (auto constellation : main_set.constellation_data) {
+			Object* new_object = new Object();
+
+			HighlightInput* new_input = new HighlightInput(&input_sys,
+				                                           new_object,
+				                                           InputSystem::Priority::EQUAL);
+
 			Label* new_label = new Label(&render_sys,
-				                         nullptr,
+				                         new_object,
 				                         "rsrc/font/MuseoSans-500.otf",
 				                         data_manager.getName(constellation.name));
 
-			new_label->position = constellation.position;
-			new_label->position = glm::normalize(constellation.position);
-			new_label->position *= 10;
-			new_label->position.w = 1;
+			new_label->position_inactive = constellation.position * 100.f;
+			new_label->position_inactive.w = 1;
+			new_label->position_active = constellation.position * 10.f;
+			new_label->position_active.w = 1;
 
-			new_label->color = glm::vec4(0.8f, 0.9f, 1.0f, 0.8f);
-			new_label->size = glm::vec2(0.04f);
+			new_label->color_inactive = glm::vec4(0.8f, 0.9f, 1.0f, 0.8f);
+			new_label->color_active = glm::vec4(0.9f, 1.0f, 0.1f, 1.0f);
+
+			new_label->size_inactive = glm::vec2(0.04f);
+			new_label->size_active = glm::vec2(0.05f);
 
 			new_label->setWhitespaceWidth(0.5);
 
-			constellation_label.push_back(new_label);
+			new_object->input_component = new_input;
+			new_object->graphic_component = new_label;
+			constellation_label.push_back(new_object);
 		}
 	}
 	else {

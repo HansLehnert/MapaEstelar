@@ -5,10 +5,17 @@
 
 Label::Label(RenderSystem* sys, Object* obj, std::string font_name, std::string label_text) :
 	GraphicComponent(sys, obj),
+
 	text(label_text),
-	color(1), 
-	position(0, 0, 0, 1),
-	size(0.1, 0.1),
+	activation(0),
+	activation_target(0),
+	/*color_inactive(1),
+	color_active(1),
+	position_inactive(0, 0, 0, 1),
+	position_active(0, 0, 0, 1),
+	size_inactive(0.1, 0.1),
+	size_active(0.1, 0.1),*/
+
 	alignment(Alignment::CENTER),
 	whitespace_width(0.8f), 
 	char_spacing(0.02f) {
@@ -28,13 +35,14 @@ Label::Label(RenderSystem* sys, Object* obj, std::string font_name, std::string 
 	updateDisplay();
 }
 
+
 int Label::render() {
 	glUseProgram(program->id);
 
 	glm::vec2 scale;
 
-	scale.x = glm::length(render_system->getCameraMatrix() * glm::vec4(1, 0, 0, 0)) * size.x;
-	scale.y = glm::length(render_system->getCameraMatrix() * glm::vec4(0, 1, 0, 0)) * size.y;
+	scale.x = glm::length(render_system->camera_matrix * glm::vec4(1, 0, 0, 0)) * size_current.x;
+	scale.y = glm::length(render_system->camera_matrix * glm::vec4(0, 1, 0, 0)) * size_current.y;
 
 	glUniformMatrix4fv(uniform_world_mat, 1, GL_FALSE, (GLfloat*)&render_system->world_matrix);
 	glUniformMatrix4fv(uniform_camera_mat, 1, GL_FALSE, (GLfloat*)&render_system->camera_matrix);
@@ -48,8 +56,8 @@ int Label::render() {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
-	glUniform4fv(uniform_base_position, 1, (GLfloat*)&position);
-	glUniform4fv(uniform_base_color, 1, (GLfloat*)&color);
+	glUniform4fv(uniform_base_position, 1, (GLfloat*)&position_current);
+	glUniform4fv(uniform_base_color, 1, (GLfloat*)&color_current);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
 	glDrawElements(GL_TRIANGLES, mesh.index_length, GL_UNSIGNED_INT, 0);
@@ -57,11 +65,49 @@ int Label::render() {
 	return 1;
 }
 
+
 int Label::update() {
+	//Actualización de posicion, color, tamaño; para resaltar
+	activation = 0.3 * activation_target + 0.7 * activation;
+
+	size_current = size_active * activation + size_inactive * (1 - activation);
+	color_current = color_active * activation + color_inactive * (1 - activation);
+	position_current = position_active * activation + position_inactive * (1 - activation);
+
 	return 1;
 }
 
-int Label::sendMessage(Message) {
+
+int Label::sendMessage(Message msg) {
+	Message new_msg;
+
+	switch (msg.type) {
+	case MSG_QUERY:
+		if (msg.query.type == MSG_QUERY_REQUEST && msg.query.source != nullptr) {
+			switch (msg.query.value) {
+			case MSG_QUERY_LOCATION:
+				glm::vec4 proyection = render_system->camera_matrix
+					//* render_system->getCameraMatrix()
+					* render_system->world_matrix
+					* position_current;
+
+				new_msg.type = MSG_QUERY;
+				new_msg.query.type = MSG_QUERY_RESPONSE;
+				new_msg.query.value = MSG_QUERY_LOCATION;
+				new_msg.query.position.x = proyection.x / proyection.w;
+				new_msg.query.position.y = proyection.y / proyection.w;
+				new_msg.query.position.r = 0.2;
+
+				msg.common.source->sendMessage(new_msg);
+			}
+		}
+
+	case MSG_ACTION:
+		if (msg.action.event == MSG_ACTION_HIGHLIGHT) {
+			activation_target = msg.action.highlight;
+		}
+	}
+	
 	return 1;
 }
 

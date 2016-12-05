@@ -73,7 +73,7 @@ int KeyboardMouseInputSystem::sendMessage(Message msg) {
 		case SDL_MOUSEWHEEL:
 			new_msg.type = MSG_INPUT;
 			new_msg.input.event = MSG_INPUT_PINCH;
-			new_msg.input.pinch.zoom = msg.sdl.event.wheel.y;
+			new_msg.input.pinch.zoom = (float)msg.sdl.event.wheel.y;
 
 			if (new_msg.input.pinch.zoom != 0)
 				relayMessage(new_msg);
@@ -104,8 +104,8 @@ int KeyboardMouseInputSystem::sendMessage(Message msg) {
 			if (mouse.right_button && (msg.sdl.event.motion.xrel != 0 || msg.sdl.event.motion.xrel != 0)) {
 				new_msg.type = MSG_INPUT;
 				new_msg.input.event = MSG_INPUT_DRAG;
-				new_msg.input.position.x = msg.sdl.event.motion.xrel * 0.2;
-				new_msg.input.position.y = -msg.sdl.event.motion.yrel * 0.2;
+				new_msg.input.position.x = msg.sdl.event.motion.xrel * 0.2f;
+				new_msg.input.position.y = -msg.sdl.event.motion.yrel * 0.2f;
 				relayMessage(new_msg);
 			}
 

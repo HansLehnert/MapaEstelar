@@ -159,6 +159,7 @@
     <ClCompile Include="src\display\CameraControl.cpp" />
     <ClCompile Include="src\display\text\Font.cpp" />
     <ClCompile Include="src\display\text\Label.cpp" />
+    <ClCompile Include="src\input\HighlightInput.cpp" />
     <ClCompile Include="src\input\InputComponent.cpp" />
     <ClCompile Include="src\input\InputSystem.cpp" />
     <ClCompile Include="src\input\KeyboardMouseInputSystem.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\display\RenderSystem.h" />
     <ClInclude Include="src\display\text\Font.h" />
     <ClInclude Include="src\display\text\Label.h" />
+    <ClInclude Include="src\input\HighlightInput.h" />
     <ClInclude Include="src\input\InputComponent.h" />
     <ClInclude Include="src\input\InputSystem.h" />
     <ClInclude Include="src\input\KeyboardMouseInputSystem.h" />

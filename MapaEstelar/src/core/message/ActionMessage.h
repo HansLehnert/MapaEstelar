@@ -8,7 +8,8 @@ enum ActionEvent {
 	MSG_ACTION_MOVE,
 	MSG_ACTION_ROTATE,
 	MSG_ACTION_SCALE,
-	MSG_ACTION_COLOR
+	MSG_ACTION_COLOR,
+	MSG_ACTION_HIGHLIGHT
 };
 
 struct ActionMessage : public BaseMessage {
@@ -34,5 +35,7 @@ struct ActionMessage : public BaseMessage {
 			float b;
 			float a;
 		} color;
+
+		float highlight;
 	};
 };

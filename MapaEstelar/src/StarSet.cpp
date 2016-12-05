@@ -90,6 +90,7 @@ int StarSet::loadConstellations() {
 			constellation.position += star_data[index].position;
 		}
 		constellation.position /= constellation.indices.size();
+		constellation.position = glm::normalize(constellation.position);
 	}
 
 	n_indices = indices.size();

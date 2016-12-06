@@ -9,6 +9,7 @@
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <glm\gtc\quaternion.hpp>
 
 #include "GraphicComponent.h"
 
@@ -52,6 +53,9 @@ RenderSystem::~RenderSystem() {
 int RenderSystem::init() {
 	window.enabled = 1;
 	display.enabled = 1;
+
+	aspect_ratio.x = 450.0 / 800.0;
+	aspect_ratio.y = 1.0;
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -144,6 +148,10 @@ int RenderSystem::init() {
 
 		display.context = SDL_GL_CreateContext(display.handle);
 		render_context = display.context;
+
+		//Corrección de relación de aspecto
+		aspect_ratio.x = 2 * 1080 / 1920.0;
+		aspect_ratio.y = 1;
 	}
 
 	//Configuracion OpenGL
@@ -362,76 +370,25 @@ int RenderSystem::update() {
 		}
 	}
 
-	//Mover a clase Camera
-	/*if (camera_dir.x == 0) {
-		if (key_status[0] == SDL_KEYDOWN)
-			camera_dir.x = -1;
-		else if (key_status[1] == SDL_KEYDOWN)
-			camera_dir.x = 1;
+	
+	//Actualizar pose
+	if (display.enabled) {
+		OSVR_Pose3 display_pose;
+		display.config->getViewer(0).getPose(display_pose);
+
+		glm::quat pose_quat;
+		pose_quat.w = osvrQuatGetW(&display_pose.rotation);
+		pose_quat.x = osvrQuatGetX(&display_pose.rotation);
+		pose_quat.y = osvrQuatGetY(&display_pose.rotation);
+		pose_quat.z = osvrQuatGetZ(&display_pose.rotation);
+
+		pose = glm::mat3_cast(pose_quat);
 	}
-	else if (camera_dir.x == -1 && key_status[0] == SDL_KEYUP) {
-		if (key_status[1] == SDL_KEYDOWN)
-			camera_dir.x = 1;
-		else
-			camera_dir.x = 0;
-	}
-	else if (camera_dir.x == 1 && key_status[1] == SDL_KEYUP) {
-		if (key_status[0] == SDL_KEYDOWN)
-			camera_dir.x = -1;
-		else
-			camera_dir.x = 0;
+	else {
+		pose = glm::mat3(1);
 	}
 
-	if (camera_dir.y == 0) {
-		if (key_status[2] == SDL_KEYDOWN)
-			camera_dir.y = 1;
-		else if (key_status[3] == SDL_KEYDOWN)
-			camera_dir.y = -1;
-	}
-	else if (camera_dir.y == 1 && key_status[2] == SDL_KEYUP) {
-		if (key_status[3] == SDL_KEYDOWN)
-			camera_dir.y = -1;
-		else
-			camera_dir.y = 0;
-	}
-	else if (camera_dir.y == -1 && key_status[3] == SDL_KEYUP) {
-		if (key_status[2] == SDL_KEYDOWN)
-			camera_dir.y = 1;
-		else
-			camera_dir.y = 0;
-	}
 
-	if (zoom_dir == 0) {
-		if (key_status[4] == SDL_KEYDOWN)
-			zoom_dir = 1;
-		else if (key_status[5] == SDL_KEYDOWN)
-			zoom_dir = -1;
-	}
-	else if (zoom_dir == 1 && key_status[4] == SDL_KEYUP) {
-		if (key_status[5] == SDL_KEYDOWN)
-			zoom_dir = -1;
-		else
-			zoom_dir = 0;
-	}
-	else if (zoom_dir == -1 && key_status[5] == SDL_KEYUP) {
-		if (key_status[4] == SDL_KEYDOWN)
-			zoom_dir = 1;
-		else
-			zoom_dir = 0;
-	}
-
-	camera_speed = (camera_speed + 0.1f * camera_dir) * 0.95f;
-
-	if (zoom_dir == 1)
-		zoom_target *= 1.02f;
-	else if (zoom_dir == -1)
-		zoom_target /= 1.02f;
-
-	zoom = zoom_target * 0.4f + zoom * 0.6f;
-
-	world_matrix = glm::rotate(glm::mat4(1), camera_speed.x, glm::vec3(0, 1, 0)) * world_matrix;
-	world_matrix = glm::rotate(glm::mat4(1), camera_speed.y, glm::vec3(1, 0, 0)) * world_matrix;
-	*/
 	return 1;
 }
 
@@ -465,6 +422,16 @@ glm::mat4 RenderSystem::getCameraMatrix() {
 
 glm::mat4 RenderSystem::getWorldMatrix() {
 	return world_matrix;
+}
+
+
+glm::mat3 RenderSystem::getPose() {
+	return pose;
+}
+
+
+glm::vec2 RenderSystem::getAspectRatio() {
+	return aspect_ratio;
 }
 
 

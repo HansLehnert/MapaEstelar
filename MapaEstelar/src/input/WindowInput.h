@@ -4,9 +4,9 @@
 
 #include <glm\glm.hpp>
 
-class ManipulationInput : public InputComponent {
+class WindowInput : public InputComponent {
 public:
-	ManipulationInput(InputSystem* sys, Object* obj, InputSystem::Priority priority) :
+	WindowInput(InputSystem* sys, Object* obj, InputSystem::Priority priority) :
 		InputComponent(sys, obj, priority),
 		offset(0)
 	{ }

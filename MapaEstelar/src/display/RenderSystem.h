@@ -25,6 +25,8 @@ public:
 
 	glm::mat4 getCameraMatrix();
 	glm::mat4 getWorldMatrix();
+	glm::mat3 getPose();
+	glm::vec2 getAspectRatio();
 
 	glm::mat4 camera_matrix;
 	glm::mat4 world_matrix;
@@ -76,5 +78,11 @@ private:
 	//Matriz de camara base
 	//Obtenida de posición del visor, o posicion inicial
 	glm::mat4 base_camera_matrix;
+
+	//Pose del visor
+	glm::mat3 pose;
+
+	//Corrección de relación de aspecto
+	glm::vec2 aspect_ratio;
 };
 

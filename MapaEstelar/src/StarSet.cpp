@@ -5,10 +5,14 @@
 
 #include <GL\glew.h>
 
+#include "DataManager.h"
+#include "display\text\Textbox.h"
+
 StarSet::StarSet(RenderSystem* sys, Object* obj) :
 	GraphicComponent(sys, obj),
 	star_buffer(0),
-	constellation_buffer(0) {
+	constellation_buffer(0),
+	window(nullptr) {
 
 	program_stars          = GLProgram::getProgram("star");
 	program_constellations = GLProgram::getProgram("constellation");
@@ -18,7 +22,44 @@ int StarSet::update() {
 	return 1;
 }
 
-int StarSet::sendMessage(Message) {
+int StarSet::sendMessage(Message msg) {
+	if (window == nullptr) {
+		return 1;
+	}
+
+	if (msg.type == MSG_INPUT && msg.input.event == MSG_INPUT_CLICK) {
+		glm::vec2 click(msg.input.position.x, msg.input.position.y);
+
+		float min_dist = 2;
+		std::string name = "";
+
+		for (auto constellation : constellation_data) {
+			glm::vec4 position = render_system->camera_matrix
+				* render_system->world_matrix
+				* constellation.position;
+			glm::vec2 projection;
+			projection.x = position.x / position.w;
+			projection.y = position.y / position.w;
+
+			float dist = glm::distance(projection, click);
+
+			if (position.z > 0 && dist < min_dist) {
+				min_dist = dist;
+				name = constellation.name;
+			}
+		}
+
+		Message new_msg;
+		new_msg.type = MSG_ACTION;
+		new_msg.action.event = MSG_ACTION_HIGHLIGHT;
+		new_msg.action.highlight = 1;
+		window->graphic_component->sendMessage(new_msg);
+
+		DataManager data_manager;
+		((Textbox*)window->graphic_component)->setText(data_manager.getDescription(name));
+		((Textbox*)window->graphic_component)->position_active = glm::vec4(0, 0, 0, 1);
+	}
+
 	return 1;
 }
 

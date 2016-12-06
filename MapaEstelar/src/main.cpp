@@ -6,13 +6,17 @@
 
 #include "display\RenderSystem.h"
 #include "display\text\Label.h"
+#include "display\text\Textbox.h"
 
 #include "input\KeyboardMouseInputSystem.h"
+#include "input\GestureInputSystem.h"
 #include "input\HighlightInput.h"
 
 #include "DataManager.h"
 #include "StarSet.h"
 #include "CameraObject.h"
+#include "CursorObject.h"
+#include "WindowObject.h"
 
 int loadStarData(std::string file_name, std::vector<Star>* data) {
 	std::ifstream star_file;
@@ -84,6 +88,7 @@ int loadStarData(std::string file_name, std::vector<Star>* data) {
 	}
 	star_file.close();
 
+
 	std::ofstream bin_file("rsrc/bin/dataset/" + file_name + ".bin", std::fstream::binary);
 	bin_file.write((char*)&(*data)[0], sizeof(Star) * data->size());
 	bin_file.close();
@@ -149,9 +154,20 @@ int main(int argc, char** argv) {
 	render_sys.init();
 	render_sys.bindInput(&input_sys);
 
+	//Objetos
 	CameraObject camera(&render_sys, &input_sys);
-	StarSet main_set(&render_sys);
+	CursorObject cursor(&render_sys, &input_sys);
+
+	Object starmap_object;
+	StarSet main_set(&render_sys, &starmap_object);
+	CursorInput star_input(&input_sys, &starmap_object, InputSystem::Priority::EQUAL);
+	starmap_object.graphic_component = &main_set;
+	starmap_object.input_component = &star_input;
+
+	WindowObject data_window(&render_sys, &input_sys);
+
 	DataManager data_manager;
+
 	std::vector<Object*> constellation_label;
 
 	if (loadStarData("DataStars.csv", &main_set.star_data)) {
@@ -199,10 +215,17 @@ int main(int argc, char** argv) {
 		std::cout << "Failed to load constellation data." << std::endl;
 	}
 
+	//Textbox textbox(&render_sys, nullptr, "rsrc/font/MuseoSans-500.otf", data_manager.getDescription("ORI"));
+	/*textbox.color_inactive = glm::vec4(1, 1, 1, 1);
+	textbox.position_inactive = glm::vec4(0, 0, 0, 1);
+	textbox.size_inactive = glm::vec2(1, 1);*/
+	main_set.window = &data_window;
+
 	float t = 0;
 	while (render_sys.update()) {
 		input_sys.update();
 	}
+
 
 	return 1;
 }

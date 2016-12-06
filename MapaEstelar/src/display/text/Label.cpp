@@ -9,12 +9,12 @@ Label::Label(RenderSystem* sys, Object* obj, std::string font_name, std::string 
 	text(label_text),
 	activation(0),
 	activation_target(0),
-	/*color_inactive(1),
+	color_inactive(0),
 	color_active(1),
 	position_inactive(0, 0, 0, 1),
 	position_active(0, 0, 0, 1),
-	size_inactive(0.1, 0.1),
-	size_active(0.1, 0.1),*/
+	size_inactive(1),
+	size_active(1),
 
 	alignment(Alignment::CENTER),
 	whitespace_width(0.8f), 
@@ -39,10 +39,10 @@ Label::Label(RenderSystem* sys, Object* obj, std::string font_name, std::string 
 int Label::render() {
 	glUseProgram(program->id);
 
-	glm::vec2 scale;
+	glm::vec2 scale = render_system->getAspectRatio() * size_current;
 
-	scale.x = glm::length(render_system->camera_matrix * glm::vec4(1, 0, 0, 0)) * size_current.x;
-	scale.y = glm::length(render_system->camera_matrix * glm::vec4(0, 1, 0, 0)) * size_current.y;
+	//scale.x = glm::length(render_system->camera_matrix * glm::vec4(1, 0, 0, 0)) * size_current.x;
+	//scale.y = glm::length(render_system->camera_matrix * glm::vec4(0, 1, 0, 0)) * size_current.y;
 
 	glUniformMatrix4fv(uniform_world_mat, 1, GL_FALSE, (GLfloat*)&render_system->world_matrix);
 	glUniformMatrix4fv(uniform_camera_mat, 1, GL_FALSE, (GLfloat*)&render_system->camera_matrix);

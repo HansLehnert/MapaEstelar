@@ -11,48 +11,50 @@ double convex_min_open = 0.5;
 double convex_max_open = 0.75;
 double convex_min_pointing = 0.7;
 double convex_max_pointing = 0.88;
-int convex_num_min_open = 8;
+int convex_num_min_open = 7;
 int convex_num_max_open = 14;
 int convex_num_min_pointing = 9;
 int convex_num_max_pointing = 16;
-double convex_circle_ratio_min_open = 0.68;
+double convex_circle_ratio_min_open = 0.6;
 double convex_circle_ratio_max_open = 0.8;
-double convex_circle_ratio_min_pointing = 0.33;
+double convex_circle_ratio_min_pointing = 0.3;
 double convex_circle_ratio_max_pointing = 0.47;
-double contour_circle_ratio_min_open = 0.39;
+double contour_circle_ratio_min_open = 0.35;
 double contour_circle_ratio_max_open = 0.6;
-double contour_circle_ratio_min_pointing = 0.24;
+double contour_circle_ratio_min_pointing = 0.22;
 double contour_circle_ratio_max_pointing = 0.37;
 
 using namespace cv;
 using namespace std;
 
 
-int handsDetection::init(void)
+int handsDetection::init(handsDetection* obj)
 {
-	vid.open(0);
+	obj->vid.open(0);
 
-	if (!vid.isOpened()) {
+	if (!obj->vid.isOpened()) {
 		cerr << "Error opening input." << endl;
 		return 1;
 	}
 
-	vid >> img;
-	img.copyTo(bg);
+	obj->thread_continue = 1;
+
+	obj->vid >> obj->img;
+	obj->img.copyTo(obj->bg);
 	int time_flag = 0;
-	int open_size = open_centroids.size();
-	int pointing_size = point_centroids.size();
-	gesture_flag = 0;
+	int open_size = obj->open_centroids.size();
+	int pointing_size = obj->point_centroids.size();
+	obj->gesture_flag = 0;
 	int gesture_flag_old = 0;
 	vector<Point2f> centroid_prev;
 	int same_gesture_counter = 0;
-	while (1) {
+	while (obj->thread_continue) {
         vector<Point2f> centroid_last;
-		this->segSkin();
-		imshow("Piel", piel_morph);
+		obj->segSkin();
+		imshow("Piel", obj->piel_morph);
 
-		open_size = open_centroids.size();
-		pointing_size = point_centroids.size();
+		open_size = obj->open_centroids.size();
+		pointing_size = obj->point_centroids.size();
 		Point2f pond_centroid_1 = Point2f(0, 0);
 		Point2f pond_centroid_2 = Point2f(0, 0);
 		Point2f pond_centroid_3 = Point2f(0, 0);
@@ -66,12 +68,12 @@ int handsDetection::init(void)
 			int one_hand = 0;
 			int no_hand = 0;
 			int pointing_hand = 0;
-			open_centroids.pop();
-			point_centroids.pop();
+			obj->open_centroids.pop();
+			obj->point_centroids.pop();
 
 			for (int i = 0; i <= WINDOWS_SIZE; i++) {
-				temp_vec = open_centroids.front();
-				temp_vec_pointing = point_centroids.front();
+				temp_vec = obj->open_centroids.front();
+				temp_vec_pointing = obj->point_centroids.front();
 				Point2f temp_point;
 				if (temp_vec.size() == 2) {
 					two_hands++;
@@ -121,10 +123,10 @@ int handsDetection::init(void)
 					pond_centroid_4.y += temp_point.y;
 					pointing_hand++;
 				}
-				open_centroids.pop();
-				point_centroids.pop();
-				open_centroids.push(temp_vec);
-				point_centroids.push(temp_vec_pointing);
+				obj->open_centroids.pop();
+				obj->point_centroids.pop();
+				obj->open_centroids.push(temp_vec);
+				obj->point_centroids.push(temp_vec_pointing);
 			}
 
 			pond_centroid_3.x /= one_hand;
@@ -134,13 +136,13 @@ int handsDetection::init(void)
 
 			if (two_hands > 2 && one_hand < two_hands) {
 				cout << "Hay dos manos! D: " << endl;
-				drawMarker(img, pond_centroid_1, Scalar(0, 0, 255), MARKER_CROSS, 20, 3);
-				drawMarker(img, pond_centroid_2, Scalar(0, 0, 255), MARKER_CROSS, 20, 3);
+				drawMarker(obj->img, pond_centroid_1, Scalar(0, 0, 255), MARKER_CROSS, 20, 3);
+				drawMarker(obj->img, pond_centroid_2, Scalar(0, 0, 255), MARKER_CROSS, 20, 3);
 				gesture_flag_old = 2;
 			}
 			else if (one_hand > 2 && one_hand > two_hands) {
 				cout << "Hay una mano! D:" << endl;
-				drawMarker(img, pond_centroid_3, Scalar(255, 0, 0), MARKER_CROSS, 20, 3);
+				drawMarker(obj->img, pond_centroid_3, Scalar(255, 0, 0), MARKER_CROSS, 20, 3);
 				gesture_flag_old = 1;
 				cout << pond_centroid_3.x << " " << pond_centroid_3.y << endl;
 			}
@@ -148,7 +150,7 @@ int handsDetection::init(void)
 			else if (pointing_hand > 5) {
 				cout << "Hay una mano apuntando! D:" << endl;
 				gesture_flag_old = 3;
-				drawMarker(img, pond_centroid_4, Scalar(0, 255, 0), MARKER_CROSS, 20, 3);
+				drawMarker(obj->img, pond_centroid_4, Scalar(0, 255, 0), MARKER_CROSS, 20, 3);
 			}
 			else if (no_hand > 10 && no_hand > two_hands && no_hand > one_hand) {
 				cout << "No hay mano :c" << endl;
@@ -156,24 +158,24 @@ int handsDetection::init(void)
 			}
 		}
 
-		if (gesture_flag_old == gesture_flag) {
+		if (gesture_flag_old == obj->gesture_flag) {
 			same_gesture_counter++;
 		}
 		else {
 			same_gesture_counter = 0;
 		}
-		gesture_flag = gesture_flag_old;
+		obj->gesture_flag = gesture_flag_old;
 
 
 		if (same_gesture_counter > 1) {
-			switch (gesture_flag)
+			switch (obj->gesture_flag)
 			{
 			case 1:
 				centroid_last.push_back(pond_centroid_3);
-				dx = pond_centroid_3.x - centroid_prev[0].x;
-				dy = pond_centroid_3.y - centroid_prev[0].y;
-				end_point = pond_centroid_1;
-				cout <<"Gesto de movimiento: \n" << "dx: " << dx << ", dy: "<< dy << endl;
+				obj->dx = pond_centroid_3.x - centroid_prev[0].x;
+				obj->dy = pond_centroid_3.y - centroid_prev[0].y;
+				obj->end_point = pond_centroid_3;
+				cout <<"Gesto de movimiento: \n" << "dx: " << obj->dx << ", dy: "<< obj->dy << endl;
                 cout << "Prev: " << centroid_prev[0].x << "," << centroid_prev[0].y<< " Now: " << pond_centroid_3.x << "," << pond_centroid_3.y<< endl;
 				break;
 			case 2:
@@ -184,14 +186,14 @@ int handsDetection::init(void)
                     + (pond_centroid_1.y - pond_centroid_2.y)*(pond_centroid_1.y - pond_centroid_2.y);
                 dist_2 = (centroid_prev[0].x - centroid_prev[1].x)*(centroid_prev[0].x - centroid_prev[1].x)
                     + (centroid_prev[0].y - centroid_prev[1].y)*(centroid_prev[0].y - centroid_prev[1].y);
-                zoom_ratio = sqrt(dist_1/dist_2);
-				cout << "Gesto de zoom: \n" << "Zoom ratio: " << zoom_ratio << endl;
+				obj->zoom_ratio = sqrt(dist_2) - sqrt(dist_1);
+				cout << "Gesto de zoom: \n" << "Zoom ratio: " << obj->zoom_ratio << endl;
 
 				break;
 			case 3:
 				centroid_last.push_back(pond_centroid_4);
-				pointing_place = pond_centroid_4;
-				cout << "Gesto de apuntar: \n" << "Coordenada: " << "(" <<pointing_place.x <<","<< pointing_place.y <<")" << endl;
+				obj->pointing_place = pond_centroid_4;
+				cout << "Gesto de apuntar: \n" << "Coordenada: " << "(" << obj->pointing_place.x <<","<< obj->pointing_place.y <<")" << endl;
 
 				break;
 			default:
@@ -199,7 +201,7 @@ int handsDetection::init(void)
 			}
 		}
 		else if (same_gesture_counter == 0) {
-			switch (gesture_flag)
+			switch (obj->gesture_flag)
 			{
 			case 1:
 				centroid_last.push_back(pond_centroid_3);
@@ -217,10 +219,10 @@ int handsDetection::init(void)
 		}
 
 		centroid_prev = centroid_last;
-		imshow("Original", img);
+		imshow("Original", obj->img);
         if (cv::waitKey(10) != -1)   break;
 	}
-	vid.release();
+	obj->vid.release();
 
 	return 0;
 }
@@ -323,6 +325,8 @@ void handsDetection::segSkin(void)
 			if (defect_sum >= 0.2*contour_length && defect_sum <= 0.3 *contour_length)  open_defect_flag = 1;
 			if (defect_sum >= 0.0*contour_length && defect_sum <= 0.13*contour_length)  point_defect_flag = 1;
 
+			if (open_defect_flag == 0 && point_defect_flag == 0)		continue;
+
 			// Calcular momentos, para encontrar el centroide y dibujarlo
 			contour_moment = moments(contours[i], false);
 			Point2f centroid = Point2f(contour_moment.m10 / contour_moment.m00, contour_moment.m01 / contour_moment.m00);
@@ -344,6 +348,8 @@ void handsDetection::segSkin(void)
 					point_n_convexity_flag = 1;
 				}
 			}
+
+			if (open_n_convexity_flag == 0 && point_n_convexity_flag == 0)	continue;
 
 
 			Point2f center;

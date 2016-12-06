@@ -17,4 +17,6 @@ private:
 
 	glm::vec2 zoom_current;
 	glm::vec2 zoom_target;
+
+	glm::vec2 offset;
 };

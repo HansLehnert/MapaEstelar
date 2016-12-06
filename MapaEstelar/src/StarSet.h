@@ -7,6 +7,7 @@
 #include <glm\glm.hpp>
 
 #include "display\GraphicComponent.h"
+#include "WindowObject.h"
 
 struct Star {
 	//Posicion en coordenadas cartesianas
@@ -56,6 +57,9 @@ public:
 	//Carga de datos de constelaciones a partir de un vector de
 	//constelaciones
 	int loadConstellations();
+
+	//Ventana de información
+	WindowObject* window;
 private:
 	GLuint star_buffer;
 	GLuint constellation_buffer;

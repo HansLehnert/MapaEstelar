@@ -1,9 +1,12 @@
+#pragma once
+
 #include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/video/background_segm.hpp>
-#include <opencv2/features2d.hpp>
-#include<chrono>
+#include "opencv2\opencv.hpp"
+#include "opencv2\highgui\highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/video/background_segm.hpp"
+#include "opencv2/features2d.hpp"
+#include <chrono>
 #include <set>
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,10 +24,9 @@ class handsDetection{
 		handsDetection();
 		~handsDetection();
 		void startThread(void);
-		int init(void);
+		static int init(handsDetection*);
 		void segSkin(void);
 		void GestureRecognition(void);
-	private:
 		int hands_number;
 		int gesture_detected;
 		int gesture_flag;
@@ -43,6 +45,7 @@ class handsDetection{
 		queue<vector<Point2f>> point_centroids;
 		queue<vector<Point2f>> open_centroids;
 		vector<Point2f> mov_direction;
+		int thread_continue;
 };
 
 void morph_op(Mat M, int morph_size, int type);

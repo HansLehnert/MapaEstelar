@@ -86,8 +86,8 @@ int KeyboardMouseInputSystem::sendMessage(Message msg) {
 			case SDL_BUTTON_LEFT:
 				mouse.left_button = msg.sdl.event.button.state == SDL_PRESSED;
 				if (mouse.left_button) {
-					msg.type = MSG_INPUT;
-					msg.input.event = MSG_INPUT_CLICK;
+					new_msg.type = MSG_INPUT;
+					new_msg.input.event = MSG_INPUT_CLICK;
 					new_msg.input.position.x = msg.sdl.event.motion.x / 400.f - 1; //Transformacion a coordenadas normalizadas.
 					new_msg.input.position.y = -msg.sdl.event.motion.y / 225.f + 1; //Implementación horrible. Arreglar.
 					relayMessage(new_msg);
